@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce — ARTE · Partenaire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS
+       ============================================================ */
+    :root {
+      --color-purple : #5202FC;
+      --color-lime   : #BAD532;
+      --color-orange : #FF9939;
+      --color-navy   : #0C1244;
+      --color-cream  : #FFFCE1;
+      --color-white  : #FFFFFF;
+
+      --font-base    : 'Montserrat', system-ui, sans-serif;
+
+      --radius-sm    : 10px;
+      --radius-md    : 14px;
+      --radius-lg    : 20px;
+      --radius-xl    : 24px;
+      --radius-pill  : 100px;
+
+      --shadow-sticker : 4px 4px 0 var(--color-navy);
+      --ease-bounce    : cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* ============================================================
+       RESET
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #b8b2a0;
+      font-family: var(--font-base);
+    }
+
+    /* ============================================================
+       SHELL TÉLÉPHONE
+       ============================================================ */
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: var(--color-cream);
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 10px #111111,
+        0 40px 80px rgba(0, 0, 0, .45);
+    }
+
+    .screen {
+      height: calc(844px - 84px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 24px;
+      scroll-behavior: smooth;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+
+    /* ============================================================
+       BARRE DE STATUT — variante claire
+       ============================================================ */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px 4px;
+      color: var(--color-navy);
+
+      /* Superposée sur la bannière */
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    .status-bar__time  { font-size: 15px; font-weight: 700; color: var(--color-white); }
+
+    .status-bar__notch {
+      width: 120px;
+      height: 32px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+    }
+
+    .status-bar__icons { display: flex; align-items: center; gap: 5px; }
+
+    .icon-battery__body {
+      width: 22px;
+      height: 11px;
+      border: 1.5px solid rgba(255,255,255,.85);
+      border-radius: 3px;
+      padding: 1.5px;
+      display: flex;
+      gap: 1.5px;
+    }
+    .icon-battery__bar { flex: 1; background: rgba(255,255,255,.85); border-radius: 1px; }
+
+    /* ============================================================
+       BANNIÈRE — dégradé violet / lime de la marque
+       ============================================================ */
+    .brand-banner {
+      position: relative;
+      height: 180px;
+
+      /* Blobs violet + lime + orange — identité Bounce appliquée au sponsor */
+      background:
+        radial-gradient(ellipse at 15% 50%, var(--color-purple)   0%, transparent 55%),
+        radial-gradient(ellipse at 85% 50%, var(--color-lime)     0%, transparent 55%),
+        radial-gradient(ellipse at 50% 110%, var(--color-orange)  0%, transparent 50%),
+        #2a0080;
+    }
+
+    /* Bouton retour flottant sur la bannière */
+    .btn-back {
+      position: absolute;
+      top: 56px;   /* sous la barre de statut */
+      left: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, .20);
+      color: var(--color-white);
+      backdrop-filter: blur(6px);
+      transition: transform 120ms var(--ease-bounce);
+    }
+    .btn-back:active { transform: scale(.90); }
+
+    /* ============================================================
+       LOGO MARQUE — carré navy qui chevauchent la bannière
+       ============================================================ */
+    .brand-identity {
+      padding: 0 20px;
+      /* Décale vers le haut pour chevaucher la bannière */
+      margin-top: -40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      background: var(--color-navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--color-lime);
+
+      /* Bordure cream pour décoller du fond */
+      border: 3px solid var(--color-cream);
+      box-shadow: 3px 3px 0 var(--color-navy);
+    }
+
+    /* ============================================================
+       INFOS MARQUE — nom + statut + bouton suivre
+       ============================================================ */
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 20px 0;
+    }
+
+    .brand-header__left {}
+
+    .brand-name {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--color-navy);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    /* Badge "partenaire vérifié" */
+    .brand-status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 6px;
+    }
+
+    .brand-status__dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--color-lime);
+      flex-shrink: 0;
+    }
+
+    .brand-status__text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-navy);
+      opacity: .70;
+    }
+
+    /* Bouton Suivre */
+    .btn-follow {
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      border: 2.5px solid var(--color-navy);
+      background: transparent;
+      color: var(--color-navy);
+      font-family: var(--font-base);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 150ms, color 150ms, transform 120ms var(--ease-bounce);
+    }
+    .btn-follow:hover  { background: var(--color-navy); color: var(--color-white); }
+    .btn-follow:active { transform: scale(.94); }
+
+    /* ============================================================
+       BIO
+       ============================================================ */
+    .brand-bio {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.65;
+      color: var(--color-navy);
+      opacity: .82;
+    }
+
+    /* ============================================================
+       STATS — 3 cartes dark côte à côte
+       ============================================================ */
+    .stats {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .stat-card {
+      flex: 1;
+      background: var(--color-navy);
+      border-radius: var(--radius-lg);
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: var(--shadow-sticker);
+    }
+
+    .stat-card__value {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--color-lime);
+      line-height: 1;
+    }
+
+    .stat-card__label {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .50);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      line-height: 1.35;
+      margin-top: 5px;
+
+      /* Permet les retours à la ligne */
+      white-space: pre-line;
+    }
+
+    /* ============================================================
+       SÉPARATEUR
+       ============================================================ */
+    .divider {
+      margin: 0 20px 20px;
+      border: none;
+      border-top: 2px solid rgba(12, 18, 68, .10);
+    }
+
+    /* ============================================================
+       SECTION GÉNÉRIQUE — titre + contenu
+       ============================================================ */
+    .section { padding: 0 20px; }
+
+    .section__title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--color-navy);
+      margin-bottom: 14px;
+    }
+
+    /* ============================================================
+       LISTE DES TREMPLINS SPONSORISÉS
+       ============================================================ */
+    .tremplin-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tremplin-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      background: var(--color-navy);
+      cursor: pointer;
+      box-shadow: var(--shadow-sticker);
+      transition: transform 120ms var(--ease-bounce);
+    }
+    .tremplin-item:active { transform: scale(.98) translate(2px, 2px); box-shadow: 2px 2px 0 var(--color-navy); }
+
+    /* Miniature dégradé blob */
+    .tremplin-item__thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Variantes de fond pour chaque tremplin */
+    .tremplin-item__thumb--1 {
+      background:
+        radial-gradient(ellipse at 30% 70%, rgba(255,153, 57,.85) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 30%, rgba( 82,  2,252,.70) 0%, transparent 50%),
+        #1a0f2e;
+    }
+    .tremplin-item__thumb--2 {
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(186,213, 50,.70) 0%, transparent 42%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,153, 57,.75) 0%, transparent 45%),
+        #0d1a3a;
+    }
+    .tremplin-item__thumb--3 {
+      background:
+        radial-gradient(ellipse at 40% 55%, rgba(255,153, 57,.65) 0%, transparent 45%),
+        radial-gradient(ellipse at 65% 35%, rgba(186,213, 50,.55) 0%, transparent 42%),
+        #111520;
+    }
+
+    .tremplin-item__info { flex: 1; }
+
+    .tremplin-item__name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--color-white);
+      line-height: 1.2;
+    }
+
+    /* Statut coloré */
+    .tremplin-item__status {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .tremplin-item__status--live    { color: var(--color-lime);   }
+    .tremplin-item__status--soon    { color: var(--color-orange); }
+    .tremplin-item__status--ended   { color: rgba(255,255,255,.40); }
+
+    /* Chevron de navigation */
+    .tremplin-item__arrow {
+      font-size: 22px;
+      color: rgba(255, 255, 255, .35);
+      line-height: 1;
+    }
+
+    /* ============================================================
+       GRILLE "ILS ONT GAGNÉ"
+       ============================================================ */
+    .winners-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .winner-card {
+      cursor: pointer;
+    }
+
+    .winner-card__thumb {
+      border-radius: var(--radius-md);
+      aspect-ratio: 1;
+      margin-bottom: 7px;
+      box-shadow: 3px 3px 0 var(--color-navy);
+    }
+
+    /* Réutilise les mêmes blobs que les artworks */
+    .winner-card__thumb--1 {
+      background:
+        radial-gradient(ellipse at 60% 40%, rgba(255,255,255,.88) 0%, transparent 32%),
+        radial-gradient(ellipse at 30% 70%, rgba( 82,  2,252,.78) 0%, transparent 40%),
+        #5a7cbb;
+    }
+    .winner-card__thumb--2 {
+      background:
+        radial-gradient(ellipse at 25% 75%, rgba(255,153, 57,.85) 0%, transparent 48%),
+        radial-gradient(ellipse at 75% 25%, rgba( 82,  2,252,.70) 0%, transparent 48%),
+        #1a0f2e;
+    }
+    .winner-card__thumb--3 {
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(186,213, 50,.70) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,153, 57,.75) 0%, transparent 45%),
+        #0d1a3a;
+    }
+
+    .winner-card__name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-navy);
+      text-align: center;
+    }
+
+    /* ============================================================
+       NAVIGATION BAS
+       ============================================================ */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      background: var(--color-cream);
+      border-top: 2.5px solid var(--color-navy);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      color: rgba(12, 18, 68, .35);
+      position: relative;
+    }
+
+    .nav-item--active { color: var(--color-navy); }
+
+    .nav-item__disc {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--color-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 0 var(--color-navy);
+    }
+
+    .nav-item__label { font-size: 10px; font-weight: 600; }
+    .nav-item--active .nav-item__label { font-weight: 800; margin-top: 28px; }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     SHELL TÉLÉPHONE
+     ============================================================ -->
+<div class="phone">
+
+  <!-- ── Barre de statut (superposée sur la bannière) ── -->
+  <div class="status-bar" role="status" aria-label="Statut système">
+    <span class="status-bar__time">9:41</span>
+    <div class="status-bar__notch" aria-hidden="true"></div>
+    <div class="status-bar__icons" aria-hidden="true">
+      <svg width="16" height="12" viewBox="0 0 17 12">
+        <rect x="0"    y="4"   width="3" height="8"    rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="4.5"  y="2.5" width="3" height="9.5"  rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="9"    y="1"   width="3" height="11"   rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="rgba(255,255,255,.85)"/>
+      </svg>
+      <svg width="15" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="rgba(255,255,255,.85)"/>
+        <path d="M8 6c1.4 0 2.7.6 3.6 1.5L13 6.1C11.7 4.8 10 4 8 4S4.3 4.8 3 6.1L4.4 7.5C5.3 6.6 6 8 6Z" fill="rgba(255,255,255,.85)"/>
+        <circle cx="8" cy="10" r="1.5" fill="rgba(255,255,255,.85)"/>
+      </svg>
+      <div class="icon-battery__body">
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── Zone scrollable ── -->
+  <main class="screen">
+
+    <!-- ── Bannière dégradé ── -->
+    <div class="brand-banner" aria-hidden="true">
+      <button class="btn-back" aria-label="Retour">←</button>
+    </div>
+
+    <!-- ── Logo ARTE qui chevauche la bannière ── -->
+    <div class="brand-identity">
+      <div class="brand-logo" aria-label="Logo ARTE">A</div>
+    </div>
+
+    <!-- ── Nom + statut + bouton Suivre ── -->
+    <header class="brand-header">
+      <div class="brand-header__left">
+        <h1 class="brand-name">ARTE</h1>
+        <div class="brand-status">
+          <span class="brand-status__dot" aria-hidden="true"></span>
+          <span class="brand-status__text">Partenaire vérifié · 8 tremplins</span>
+        </div>
+      </div>
+      <button class="btn-follow" aria-label="Suivre ARTE">+ Suivre</button>
+    </header>
+
+    <!-- ── Bio ── -->
+    <p class="brand-bio">
+      Chaîne culturelle européenne. On cherche des regards neufs, hors des sentiers — celles et ceux qui osent montrer ce qui d'habitude reste caché.
+    </p>
+
+    <!-- ── Stats ── -->
+    <div class="stats" role="list" aria-label="Statistiques ARTE sur Bounce">
+
+      <article class="stat-card" role="listitem">
+        <p class="stat-card__value">248</p>
+        <p class="stat-card__label">{"Talents\npropulsés"}</p>
+      </article>
+
+      <article class="stat-card" role="listitem">
+        <p class="stat-card__value">42k€</p>
+        <p class="stat-card__label">Distribués</p>
+      </article>
+
+      <article class="stat-card" role="listitem">
+        <p class="stat-card__value">2025</p>
+        <p class="stat-card__label">Depuis</p>
+      </article>
+
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ── Tremplins sponsorisés ── -->
+    <section class="section" aria-labelledby="tremplins-title">
+      <h2 class="section__title" id="tremplins-title">Tremplins sponsorisés</h2>
+
+      <ul class="tremplin-list" role="list">
+
+        <!-- La nuit — EN COURS -->
+        <li>
+          <article class="tremplin-item" role="button" tabindex="0" aria-label="Voir le tremplin La nuit, en cours">
+            <div class="tremplin-item__thumb tremplin-item__thumb--1" aria-hidden="true"></div>
+            <div class="tremplin-item__info">
+              <p class="tremplin-item__name">La nuit</p>
+              <p class="tremplin-item__status tremplin-item__status--live">En cours</p>
+            </div>
+            <span class="tremplin-item__arrow" aria-hidden="true">›</span>
+          </article>
+        </li>
+
+        <!-- Le silence — BIENTÔT -->
+        <li>
+          <article class="tremplin-item" role="button" tabindex="0" aria-label="Voir le tremplin Le silence, bientôt">
+            <div class="tremplin-item__thumb tremplin-item__thumb--2" aria-hidden="true"></div>
+            <div class="tremplin-item__info">
+              <p class="tremplin-item__name">Le silence</p>
+              <p class="tremplin-item__status tremplin-item__status--soon">Bientôt</p>
+            </div>
+            <span class="tremplin-item__arrow" aria-hidden="true">›</span>
+          </article>
+        </li>
+
+        <!-- Rituel — TERMINÉ -->
+        <li>
+          <article class="tremplin-item" role="button" tabindex="0" aria-label="Voir le tremplin Rituel, terminé">
+            <div class="tremplin-item__thumb tremplin-item__thumb--3" aria-hidden="true"></div>
+            <div class="tremplin-item__info">
+              <p class="tremplin-item__name">Rituel</p>
+              <p class="tremplin-item__status tremplin-item__status--ended">Terminé</p>
+            </div>
+            <span class="tremplin-item__arrow" aria-hidden="true">›</span>
+          </article>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- ── Ils ont gagné ── -->
+    <section class="section" aria-labelledby="winners-title">
+      <h2 class="section__title" id="winners-title">Ils ont gagné</h2>
+
+      <div class="winners-grid">
+
+        <article class="winner-card" role="button" tabindex="0" aria-label="Voir l'œuvre d'Amina K.">
+          <div class="winner-card__thumb winner-card__thumb--1" aria-hidden="true"></div>
+          <p class="winner-card__name">Amina K.</p>
+        </article>
+
+        <article class="winner-card" role="button" tabindex="0" aria-label="Voir l'œuvre de Marc D.">
+          <div class="winner-card__thumb winner-card__thumb--2" aria-hidden="true"></div>
+          <p class="winner-card__name">Marc D.</p>
+        </article>
+
+        <article class="winner-card" role="button" tabindex="0" aria-label="Voir l'œuvre de Léa S.">
+          <div class="winner-card__thumb winner-card__thumb--3" aria-hidden="true"></div>
+          <p class="winner-card__name">Léa S.</p>
+        </article>
+
+      </div>
+    </section>
+
+  </main><!-- /screen -->
+
+
+  <!-- ── Navigation bas ── -->
+  <nav class="bottom-nav" aria-label="Navigation principale">
+
+    <button class="nav-item" aria-label="Accueil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="nav-item__label">Accueil</span>
+    </button>
+
+    <!-- Découverte — actif sur cette page -->
+    <button class="nav-item nav-item--active" aria-current="page" aria-label="Découverte">
+      <div class="nav-item__disc" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="var(--color-navy)" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <span class="nav-item__label">Découverte</span>
+    </button>
+
+    <button class="nav-item" aria-label="Voter">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+      <span class="nav-item__label">Voter</span>
+    </button>
+
+    <button class="nav-item" aria-label="Mon profil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-item__label">Profil</span>
+    </button>
+
+  </nav><!-- /bottom-nav -->
+
+</div><!-- /phone -->
+
+</body>
+</html>

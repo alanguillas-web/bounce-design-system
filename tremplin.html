@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce — Tremplin #24 · La nuit.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS — variables globales du design system Bounce
+       ============================================================ */
+    :root {
+      --color-purple : #5202FC;
+      --color-lime   : #BAD532;
+      --color-orange : #FF9939;
+      --color-navy   : #0C1244;
+      --color-cream  : #FFFCE1;
+      --color-white  : #FFFFFF;
+
+      --font-base    : 'Montserrat', system-ui, sans-serif;
+
+      --radius-sm    : 10px;
+      --radius-md    : 14px;
+      --radius-lg    : 20px;
+      --radius-xl    : 24px;
+      --radius-pill  : 100px;
+
+      /* Ombre sticker : décalage solid sans blur — signature Bounce */
+      --shadow-sticker      : 4px 4px 0 var(--color-navy);
+      --shadow-sticker-light: 4px 4px 0 rgba(0, 0, 0, .35);
+
+      --ease-bounce : cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* ============================================================
+       RESET
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #b8b2a0;
+      font-family: var(--font-base);
+    }
+
+    /* ============================================================
+       SHELL — cadre téléphone 390 × 844
+       ============================================================ */
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: var(--color-navy);   /* fond sombre pour cette page */
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 10px #111111,
+        0 40px 80px rgba(0, 0, 0, .45);
+    }
+
+    /* Zone scrollable (hauteur = total − nav bas) */
+    .screen {
+      height: calc(844px - 84px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 80px; /* espace sous le bouton sticky */
+      scroll-behavior: smooth;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+
+    /* ============================================================
+       BARRE DE STATUT — variante sombre
+       ============================================================ */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px 4px;
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .status-bar__time  { font-size: 15px; font-weight: 700; }
+
+    .status-bar__notch {
+      width: 120px;
+      height: 32px;
+      background: rgba(255, 255, 255, .15);
+      border-radius: 20px;
+    }
+
+    .status-bar__icons { display: flex; align-items: center; gap: 5px; }
+
+    /* Batterie CSS pur */
+    .icon-battery__body {
+      width: 22px;
+      height: 11px;
+      border: 1.5px solid rgba(255, 255, 255, .85);
+      border-radius: 3px;
+      padding: 1.5px;
+      display: flex;
+      gap: 1.5px;
+    }
+    .icon-battery__bar { flex: 1; background: rgba(255, 255, 255, .85); border-radius: 1px; }
+
+    /* ============================================================
+       SECTION HERO — gradient "nuit" + infos tremplin
+       ============================================================ */
+    .hero {
+      padding: 12px 16px 28px;
+
+      /* Blobs orange + violet sur fond très sombre = ambiance nocturne */
+      background:
+        radial-gradient(ellipse at 70% 20%, rgba(255, 153,  57, .80) 0%, transparent 48%),
+        radial-gradient(ellipse at 25% 80%, rgba( 82,   2, 252, .50) 0%, transparent 48%),
+        radial-gradient(ellipse at 50% 50%, rgba( 40,  15,   5, .60) 0%, transparent 60%),
+        #1e1208;
+    }
+
+    /* Ligne haut : bouton retour + badge "en cours" */
+    .hero__nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    /* ── Bouton retour ── */
+    .btn-back {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: transform 120ms var(--ease-bounce);
+
+      /* Variante sombre (fond translucide + flou) */
+      background: rgba(255, 255, 255, .18);
+      color: var(--color-white);
+      backdrop-filter: blur(6px);
+    }
+    .btn-back:active { transform: scale(.90); }
+
+    /* ── Pill générique ── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .pill--live { background: var(--color-lime); color: var(--color-navy); }
+
+    .pill__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-navy);
+      display: inline-block;
+    }
+
+    /* ── Méta (tremplin + sponsor) ── */
+    .hero__meta {
+      font-size: 10px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, .50);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .hero__meta-link {
+      color: var(--color-lime);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ── Titre principal ── */
+    .hero__title {
+      font-size: 46px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--color-white);
+      line-height: 1.0;
+      margin-bottom: 10px;
+    }
+
+    /* ── Description ── */
+    .hero__desc {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .70);
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    /* ── Countdown ── */
+    .hero__countdown-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .50);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .countdown {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Variante "light" : fond semi-transparent avec bordure */
+    .countdown__pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      min-width: 46px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, .15);
+      color: var(--color-white);
+      border: 1.5px solid rgba(255, 255, 255, .22);
+    }
+
+    .countdown__num  { font-size: 20px; font-weight: 900; line-height: 1;   }
+    .countdown__unit { font-size: 9px;  font-weight: 700; opacity: .65;     }
+
+    /* ============================================================
+       SECTION RÉCOMPENSES — 3 cartes côte à côte
+       ============================================================ */
+    .prizes {
+      display: flex;
+      gap: 8px;
+      padding: 20px 16px 0;
+    }
+
+    .prize-card {
+      flex: 1;
+      border-radius: var(--radius-lg);
+      padding: 14px 12px;
+      box-shadow: var(--shadow-sticker-light);
+    }
+
+    /* Couleurs par rang */
+    .prize-card--1 { background: var(--color-purple); }
+    .prize-card--2 { background: var(--color-orange); }
+    .prize-card--3 { background: var(--color-lime);   }
+
+    .prize-card__rank {
+      font-size: 10px;
+      font-weight: 700;
+      opacity: .60;
+      margin-bottom: 6px;
+    }
+
+    /* Couleur du texte selon le fond */
+    .prize-card--1 .prize-card__rank  { color: var(--color-white); }
+    .prize-card--2 .prize-card__rank,
+    .prize-card--3 .prize-card__rank  { color: var(--color-navy);  }
+
+    .prize-card__amount {
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .prize-card--1 .prize-card__amount { font-size: 21px; color: var(--color-white); }
+    .prize-card--2 .prize-card__amount { font-size: 18px; color: var(--color-navy);  }
+    .prize-card--3 .prize-card__amount { font-size: 18px; color: var(--color-navy);  }
+
+    .prize-card__extra {
+      font-size: 10px;
+      font-weight: 700;
+      opacity: .75;
+    }
+    .prize-card--1 .prize-card__extra { color: var(--color-white); }
+    .prize-card--2 .prize-card__extra,
+    .prize-card--3 .prize-card__extra { color: var(--color-navy);  }
+
+    /* ============================================================
+       ONGLETS — Œuvres / Classement / Règles
+       ============================================================ */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 20px 16px 14px;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 150ms, color 150ms;
+    }
+
+    .tab--active   { background: var(--color-white); color: var(--color-navy); }
+    .tab--inactive { background: rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .65); }
+
+    /* ============================================================
+       FILTRES CHIPS — variante sombre
+       ============================================================ */
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 16px 14px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-base);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 120ms var(--ease-bounce);
+      border: 2px solid rgba(255, 255, 255, .20);
+    }
+    .chip:active { transform: scale(.95); }
+
+    .chip--active   { background: var(--color-white); color: var(--color-navy); border-color: var(--color-white); }
+    .chip--inactive { background: rgba(255, 255, 255, .12); color: var(--color-white); }
+
+    /* ============================================================
+       GRILLE DES ŒUVRES
+       ============================================================ */
+    .feed-grid {
+      padding: 0 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .artwork-card {
+      border-radius: var(--radius-lg);
+      aspect-ratio: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, .14);
+    }
+
+    /* Dégradés blob pour simuler les œuvres */
+    .artwork-card--1 {
+      background:
+        radial-gradient(ellipse at 25% 75%, rgba(255,153, 57,.85) 0%, transparent 48%),
+        radial-gradient(ellipse at 75% 25%, rgba( 82,  2,252,.70) 0%, transparent 48%),
+        #1a0f2e;
+    }
+    .artwork-card--2 {
+      background:
+        radial-gradient(ellipse at 60% 40%, rgba(255,255,255,.90) 0%, transparent 32%),
+        radial-gradient(ellipse at 30% 70%, rgba( 82,  2,252,.80) 0%, transparent 42%),
+        #5a7cbb;
+    }
+    .artwork-card--3 {
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(186,213, 50,.70) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,153, 57,.80) 0%, transparent 45%),
+        #0d1a3a;
+    }
+    .artwork-card--4 {
+      background:
+        radial-gradient(ellipse at 40% 50%, rgba(255,153, 57,.70) 0%, transparent 42%),
+        radial-gradient(ellipse at 70% 30%, rgba(186,213, 50,.60) 0%, transparent 40%),
+        #111520;
+    }
+
+    /* Badge de classement (1, 2, 3…) */
+    .artwork-card__rank {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .artwork-card__rank--top { background: var(--color-lime); color: var(--color-navy); }
+    .artwork-card__rank--std { background: rgba(255,255,255,.28); color: var(--color-white); }
+
+    /* Overlay dégradé + infos en bas */
+    .artwork-card__overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 100%);
+      padding: 28px 10px 10px;
+    }
+
+    .artwork-card__title  { color: var(--color-white); font-size: 11px; font-weight: 800; line-height: 1.2; }
+    .artwork-card__votes  { color: var(--color-lime);  font-size: 10px; font-weight: 700; margin-top: 2px; }
+
+    /* ============================================================
+       BOUTON CTA STICKY "Voter"
+       — positionné en sticky sur le bas du scroll
+       ============================================================ */
+    .cta-sticky {
+      position: sticky;
+      bottom: 0;
+      padding: 12px 16px 16px;
+
+      /* Dégradé pour adoucir l'apparition sur le contenu */
+      background: linear-gradient(to top, var(--color-navy) 55%, transparent);
+    }
+
+    .btn-vote {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+
+      background: var(--color-purple);
+      color: var(--color-white);
+      box-shadow: var(--shadow-sticker);
+
+      transition: transform 120ms var(--ease-bounce), box-shadow 120ms;
+    }
+    .btn-vote:active {
+      transform: scale(.97) translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--color-navy);
+    }
+
+    /* ============================================================
+       NAVIGATION BAS
+       ============================================================ */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      background: var(--color-navy);
+      border-top: 2.5px solid rgba(255, 255, 255, .12);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      position: relative;
+    }
+
+    .nav-item--default { color: rgba(255, 255, 255, .30); }
+    .nav-item--active  { color: var(--color-white);       }
+
+    /* Disque lime sur l'onglet actif */
+    .nav-item__disc {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--color-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 0 rgba(0,0,0,.3);
+    }
+
+    .nav-item__label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .nav-item--active .nav-item__label {
+      font-weight: 800;
+      color: var(--color-white);
+      margin-top: 28px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     SHELL TÉLÉPHONE
+     ============================================================ -->
+<div class="phone">
+
+  <!-- ── Barre de statut (variante sombre) ── -->
+  <div class="status-bar" role="status" aria-label="Statut système">
+    <span class="status-bar__time">9:41</span>
+
+    <div class="status-bar__notch" aria-hidden="true"></div>
+
+    <div class="status-bar__icons" aria-hidden="true">
+      <!-- Barres signal -->
+      <svg width="16" height="12" viewBox="0 0 17 12">
+        <rect x="0"    y="4"   width="3" height="8"    rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="4.5"  y="2.5" width="3" height="9.5"  rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="9"    y="1"   width="3" height="11"   rx="1" fill="rgba(255,255,255,.85)"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="rgba(255,255,255,.85)"/>
+      </svg>
+      <!-- Wi-Fi -->
+      <svg width="15" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="rgba(255,255,255,.85)"/>
+        <path d="M8 6c1.4 0 2.7.6 3.6 1.5L13 6.1C11.7 4.8 10 4 8 4S4.3 4.8 3 6.1L4.4 7.5C5.3 6.6 6.6 6 8 6Z" fill="rgba(255,255,255,.85)"/>
+        <circle cx="8" cy="10" r="1.5" fill="rgba(255,255,255,.85)"/>
+      </svg>
+      <!-- Batterie -->
+      <div class="icon-battery__body">
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+      </div>
+    </div>
+  </div><!-- /status-bar -->
+
+
+  <!-- ── Zone scrollable ── -->
+  <main class="screen">
+
+    <!-- ── Section hero : visuel + infos tremplin ── -->
+    <section class="hero" aria-labelledby="tremplin-title">
+
+      <!-- Retour + badge statut -->
+      <div class="hero__nav">
+        <button class="btn-back" aria-label="Retour au feed">←</button>
+        <span class="pill pill--live" role="status">
+          <span class="pill__dot" aria-hidden="true"></span>
+          En cours
+        </span>
+      </div>
+
+      <!-- Méta : numéro + sponsor cliquable -->
+      <p class="hero__meta">
+        Tremplin #24 — Sponsorisé par
+        <a class="hero__meta-link" href="#" aria-label="Voir la page ARTE">Arte</a>
+      </p>
+
+      <!-- Titre affiché en grand -->
+      <h1 class="hero__title" id="tremplin-title">La nuit.</h1>
+
+      <!-- Brief du tremplin -->
+      <p class="hero__desc">
+        Montrez-nous ce que vos yeux voient quand la ville dort.
+      </p>
+
+      <!-- Countdown -->
+      <p class="hero__countdown-label">Se termine dans</p>
+
+      <div class="countdown" role="timer" aria-label="Temps restant : 3 jours 14 heures 22 minutes">
+        <div class="countdown__pill">
+          <span class="countdown__num">03</span>
+          <span class="countdown__unit">j</span>
+        </div>
+        <div class="countdown__pill">
+          <span class="countdown__num">14</span>
+          <span class="countdown__unit">h</span>
+        </div>
+        <div class="countdown__pill">
+          <span class="countdown__num">22</span>
+          <span class="countdown__unit">m</span>
+        </div>
+        <div class="countdown__pill">
+          <span class="countdown__num">00</span>
+          <span class="countdown__unit">s</span>
+        </div>
+      </div>
+
+    </section><!-- /hero -->
+
+
+    <!-- ── Section récompenses ── -->
+    <section class="prizes" aria-label="Récompenses du tremplin">
+
+      <article class="prize-card prize-card--1">
+        <p class="prize-card__rank">1°</p>
+        <p class="prize-card__amount">5 000<br>€</p>
+        <p class="prize-card__extra">+ expo Paris</p>
+      </article>
+
+      <article class="prize-card prize-card--2">
+        <p class="prize-card__rank">2°</p>
+        <p class="prize-card__amount">2 000<br>€</p>
+        <p class="prize-card__extra">+ résidence</p>
+      </article>
+
+      <article class="prize-card prize-card--3">
+        <p class="prize-card__rank">3°</p>
+        <p class="prize-card__amount">500<br>€</p>
+        <p class="prize-card__extra">+ matos</p>
+      </article>
+
+    </section><!-- /prizes -->
+
+
+    <!-- ── Onglets de navigation interne ── -->
+    <nav class="tabs" aria-label="Sections du tremplin" role="tablist">
+      <button class="tab tab--active"   role="tab" aria-selected="true"  aria-controls="panel-oeuvres">Œuvres</button>
+      <button class="tab tab--inactive" role="tab" aria-selected="false" aria-controls="panel-classement">Classement</button>
+      <button class="tab tab--inactive" role="tab" aria-selected="false" aria-controls="panel-regles">Règles</button>
+    </nav>
+
+
+    <!-- ── Filtres disciplines ── -->
+    <nav class="chips" aria-label="Filtrer par discipline">
+      <button class="chip chip--active"   aria-pressed="true">Tous</button>
+      <button class="chip chip--inactive" aria-pressed="false">Illustration</button>
+      <button class="chip chip--inactive" aria-pressed="false">Photo</button>
+      <button class="chip chip--inactive" aria-pressed="false">Musique</button>
+      <button class="chip chip--inactive" aria-pressed="false">3D</button>
+    </nav>
+
+
+    <!-- ── Grille des œuvres ── -->
+    <section
+      id="panel-oeuvres"
+      class="feed-grid"
+      role="tabpanel"
+      aria-labelledby="tab-oeuvres"
+    >
+
+      <article class="artwork-card artwork-card--1">
+        <span class="artwork-card__rank artwork-card__rank--top" aria-label="Rang 1">1</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Néon sur Seine</p>
+          <p class="artwork-card__votes">▲ 1 842</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--2">
+        <span class="artwork-card__rank artwork-card__rank--top" aria-label="Rang 2">2</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Playground</p>
+          <p class="artwork-card__votes">▲ 1 203</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--3">
+        <span class="artwork-card__rank artwork-card__rank--top" aria-label="Rang 3">3</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Minuit Paris</p>
+          <p class="artwork-card__votes">▲ 842</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--4">
+        <span class="artwork-card__rank artwork-card__rank--std" aria-label="Rang 4">4</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Abstraction 3D</p>
+          <p class="artwork-card__votes">▲ 634</p>
+        </div>
+      </article>
+
+    </section><!-- /feed-grid -->
+
+
+    <!-- ── CTA sticky "Voter" ── -->
+    <div class="cta-sticky">
+      <button class="btn-vote" aria-label="Voter pour une œuvre de ce tremplin">
+        ▲ Voter pour une œuvre
+      </button>
+    </div>
+
+  </main><!-- /screen -->
+
+
+  <!-- ── Navigation bas ── -->
+  <nav class="bottom-nav" aria-label="Navigation principale">
+
+    <!-- Accueil -->
+    <button class="nav-item nav-item--default" aria-label="Accueil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="nav-item__label">Accueil</span>
+    </button>
+
+    <!-- Découverte -->
+    <button class="nav-item nav-item--default" aria-label="Découverte">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span class="nav-item__label">Découverte</span>
+    </button>
+
+    <!-- Voter (actif sur cette page) -->
+    <button class="nav-item nav-item--active" aria-label="Voter" aria-current="page">
+      <div class="nav-item__disc" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="var(--color-navy)" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </div>
+      <span class="nav-item__label">Voter</span>
+    </button>
+
+    <!-- Profil -->
+    <button class="nav-item nav-item--default" aria-label="Mon profil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-item__label">Profil</span>
+    </button>
+
+  </nav><!-- /bottom-nav -->
+
+</div><!-- /phone -->
+
+</body>
+</html>

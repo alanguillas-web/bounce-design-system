@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce — Néon sur Seine · Amina K.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,700;1,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS
+       ============================================================ */
+    :root {
+      --color-purple : #5202FC;
+      --color-lime   : #BAD532;
+      --color-orange : #FF9939;
+      --color-navy   : #0C1244;
+      --color-cream  : #FFFCE1;
+      --color-white  : #FFFFFF;
+
+      --font-base    : 'Montserrat', system-ui, sans-serif;
+
+      --radius-sm    : 10px;
+      --radius-md    : 14px;
+      --radius-lg    : 20px;
+      --radius-xl    : 24px;
+      --radius-pill  : 100px;
+
+      --shadow-sticker : 4px 4px 0 var(--color-navy);
+      --ease-bounce    : cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* ============================================================
+       RESET
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #b8b2a0;
+      font-family: var(--font-base);
+    }
+
+    /* ============================================================
+       SHELL TÉLÉPHONE
+       ============================================================ */
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: var(--color-cream);
+      border-radius: 48px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 10px #111111,
+        0 40px 80px rgba(0, 0, 0, .45);
+    }
+
+    /* Zone scrollable */
+    .screen {
+      height: calc(844px - 84px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 80px;
+      scroll-behavior: smooth;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+
+    /* ============================================================
+       BARRE DE STATUT — variante claire
+       ============================================================ */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px 4px;
+      color: var(--color-navy);
+    }
+
+    .status-bar__time  { font-size: 15px; font-weight: 700; }
+
+    .status-bar__notch {
+      width: 120px;
+      height: 32px;
+      background: #111;
+      border-radius: 20px;
+    }
+
+    .status-bar__icons { display: flex; align-items: center; gap: 5px; }
+
+    .icon-battery__body {
+      width: 22px;
+      height: 11px;
+      border: 1.5px solid var(--color-navy);
+      border-radius: 3px;
+      padding: 1.5px;
+      display: flex;
+      gap: 1.5px;
+    }
+    .icon-battery__bar { flex: 1; background: var(--color-navy); border-radius: 1px; }
+
+    /* ============================================================
+       VISUEL ŒUVRE — pleine largeur avec contrôles superposés
+       ============================================================ */
+    .artwork {
+      position: relative;
+      width: 100%;
+      height: 310px;
+      flex-shrink: 0;
+
+      /* Blobs bleu/blanc/violet — ambiance de l'œuvre "Néon sur Seine" */
+      background:
+        radial-gradient(ellipse at 62% 38%, rgba(255,255,255,.92) 0%, transparent 30%),
+        radial-gradient(ellipse at 28% 68%, rgba( 82,  2,252,.82) 0%, transparent 40%),
+        radial-gradient(ellipse at 72% 68%, rgba(186,213, 50,.30) 0%, transparent 38%),
+        radial-gradient(ellipse at 50% 20%, rgba(180,200,255,.50) 0%, transparent 45%),
+        #5a7cbb;
+    }
+
+    /* Rangée de contrôles flottants sur l'image */
+    .artwork__controls {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Bouton retour — variante claire (fond blanc) */
+    .btn-back {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      background: var(--color-white);
+      color: var(--color-navy);
+      box-shadow: 3px 3px 0 var(--color-navy);
+      transition: transform 120ms var(--ease-bounce);
+      flex-shrink: 0;
+    }
+    .btn-back:active { transform: scale(.90); }
+
+    /* Groupe tags : PHOTO + #1 */
+    .artwork__tags {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Pastille générique */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .pill--photo { background: var(--color-white); color: var(--color-navy); box-shadow: 2px 2px 0 var(--color-navy); }
+    .pill--rank  { background: var(--color-orange); color: var(--color-navy); box-shadow: 2px 2px 0 var(--color-navy); }
+
+    /* ============================================================
+       CONTENU — padding latéral uniforme
+       ============================================================ */
+    .content { padding: 20px 20px 0; }
+
+    /* ── Titre de l'œuvre ── */
+    .artwork-title {
+      font-size: 30px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--color-navy);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================================
+       CARTE ARTISTE
+       ============================================================ */
+    .artist-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-lg);
+      border: 2.5px solid var(--color-navy);
+      margin-bottom: 16px;
+    }
+
+    /* Avatar initiale */
+    .artist-card__avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-purple);
+      color: var(--color-white);
+      font-size: 17px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .artist-card__info { flex: 1; }
+
+    .artist-card__name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--color-navy);
+    }
+
+    .artist-card__meta {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(12, 18, 68, .50);
+      margin-top: 2px;
+    }
+
+    /* Bouton "Suivre" */
+    .btn-follow {
+      padding: 9px 16px;
+      border-radius: var(--radius-pill);
+      background: var(--color-navy);
+      color: var(--color-white);
+      border: none;
+      font-family: var(--font-base);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 120ms var(--ease-bounce);
+      flex-shrink: 0;
+    }
+    .btn-follow:active { transform: scale(.93); }
+
+    /* ============================================================
+       CITATION / DESCRIPTION
+       ============================================================ */
+    .quote {
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-navy);
+      opacity: .80;
+      line-height: 1.70;
+      margin-bottom: 16px;
+
+      /* Liseré vertical lime — signature Bounce */
+      border-left: 3px solid var(--color-lime);
+      padding-left: 14px;
+    }
+
+    /* ============================================================
+       CARTE VOTES + CLASSEMENT
+       ============================================================ */
+    .votes-card {
+      background: var(--color-purple);
+      border-radius: var(--radius-xl);
+      padding: 18px 18px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sticker);
+    }
+
+    /* Ligne supérieure : votes à gauche, rang à droite */
+    .votes-card__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .votes-card__group { display: flex; flex-direction: column; gap: 4px; }
+
+    .votes-card__label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .60);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .votes-card__value {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--color-white);
+      line-height: 1;
+    }
+
+    /* Rang en vert lime */
+    .votes-card__value--rank { color: var(--color-lime); }
+
+    /* Barre de progression stylisée */
+    .progress-track {
+      height: 8px;
+      background: rgba(255, 255, 255, .20);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 30%;           /* 30 % des votes du tremplin */
+      background: var(--color-lime);
+      border-radius: var(--radius-pill);
+
+      /* Micro-animation à l'entrée */
+      animation: fillIn 700ms var(--ease-bounce) forwards;
+    }
+
+    @keyframes fillIn {
+      from { width: 0; }
+      to   { width: 30%; }
+    }
+
+    .progress-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .60);
+    }
+
+    /* ============================================================
+       BARRE D'ACTIONS — 5 boutons égaux
+       ============================================================ */
+    .actions-bar {
+      display: flex;
+      border: 2.5px solid var(--color-navy);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 13px 4px;
+      background: transparent;
+      border: none;
+      border-right: 2px solid var(--color-navy);
+      cursor: pointer;
+      color: var(--color-navy);
+      font-family: var(--font-base);
+      font-size: 9px;
+      font-weight: 700;
+      transition: background 150ms, color 150ms;
+    }
+
+    /* Supprime la bordure droite du dernier bouton */
+    .action-btn:last-child { border-right: none; }
+
+    .action-btn:active { background: rgba(12, 18, 68, .06); }
+
+    /* État "sauvegardé" : fond lime */
+    .action-btn--saved {
+      background: var(--color-lime);
+      color: var(--color-navy);
+    }
+
+    /* ============================================================
+       CTA VOTER — sticky en bas du scroll
+       ============================================================ */
+    .cta-sticky {
+      position: sticky;
+      bottom: 0;
+      padding: 0 20px 14px;
+
+      /* Fondu vers la cream pour ne pas couper le contenu */
+      background: linear-gradient(to top, var(--color-cream) 65%, transparent);
+    }
+
+    .btn-vote {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--color-purple);
+      color: var(--color-white);
+      box-shadow: var(--shadow-sticker);
+      transition: transform 120ms var(--ease-bounce), box-shadow 120ms;
+    }
+    .btn-vote:active {
+      transform: scale(.97) translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--color-navy);
+    }
+
+    /* ============================================================
+       NAVIGATION BAS
+       ============================================================ */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      background: var(--color-cream);
+      border-top: 2.5px solid var(--color-navy);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-base);
+      color: rgba(12, 18, 68, .35);
+      position: relative;
+    }
+
+    .nav-item--active { color: var(--color-navy); }
+
+    .nav-item__disc {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--color-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 0 var(--color-navy);
+    }
+
+    .nav-item__label { font-size: 10px; font-weight: 600; }
+    .nav-item--active .nav-item__label { font-weight: 800; margin-top: 28px; }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     SHELL TÉLÉPHONE
+     ============================================================ -->
+<div class="phone">
+
+  <!-- ── Barre de statut ── -->
+  <div class="status-bar" role="status" aria-label="Statut système">
+    <span class="status-bar__time">9:41</span>
+    <div class="status-bar__notch" aria-hidden="true"></div>
+    <div class="status-bar__icons" aria-hidden="true">
+      <svg width="16" height="12" viewBox="0 0 17 12">
+        <rect x="0"    y="4"   width="3" height="8"    rx="1" fill="var(--color-navy)"/>
+        <rect x="4.5"  y="2.5" width="3" height="9.5"  rx="1" fill="var(--color-navy)"/>
+        <rect x="9"    y="1"   width="3" height="11"   rx="1" fill="var(--color-navy)"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="var(--color-navy)"/>
+      </svg>
+      <svg width="15" height="12" viewBox="0 0 16 12" fill="none">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1S2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="var(--color-navy)"/>
+        <path d="M8 6c1.4 0 2.7.6 3.6 1.5L13 6.1C11.7 4.8 10 4 8 4S4.3 4.8 3 6.1L4.4 7.5C5.3 6.6 6.6 6 8 6Z" fill="var(--color-navy)"/>
+        <circle cx="8" cy="10" r="1.5" fill="var(--color-navy)"/>
+      </svg>
+      <div class="icon-battery__body">
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+        <div class="icon-battery__bar"></div>
+      </div>
+    </div>
+  </div><!-- /status-bar -->
+
+
+  <!-- ── Zone scrollable ── -->
+  <main class="screen">
+
+    <!-- ── Visuel pleine largeur ── -->
+    <figure class="artwork" aria-label="Œuvre : Néon sur Seine par Amina K.">
+
+      <!-- Contrôles flottants sur l'image -->
+      <div class="artwork__controls">
+        <button class="btn-back" aria-label="Retour au tremplin">←</button>
+
+        <div class="artwork__tags">
+          <span class="pill pill--photo">Photo</span>
+          <span class="pill pill--rank">#1</span>
+        </div>
+      </div>
+
+    </figure><!-- /artwork -->
+
+
+    <!-- ── Contenu principal ── -->
+    <div class="content">
+
+      <!-- Titre de l'œuvre -->
+      <h1 class="artwork-title">Neon sur Seine</h1>
+
+      <!-- Carte artiste -->
+      <article class="artist-card">
+        <div class="artist-card__avatar" aria-hidden="true">A</div>
+        <div class="artist-card__info">
+          <p class="artist-card__name">Amina K.</p>
+          <p class="artist-card__meta">Paris · Photo</p>
+        </div>
+        <button class="btn-follow" aria-label="Suivre Amina K.">+ Suivre</button>
+      </article>
+
+      <!-- Citation de l'artiste -->
+      <blockquote class="quote">
+        « Je traîne dehors quand la ville se tait. Cette photo, c'est un pont à 3h du matin où la lumière tombe comme un rideau. Rien de spectaculaire — juste vrai. »
+      </blockquote>
+
+      <!-- Carte votes + progression -->
+      <section class="votes-card" aria-label="Statistiques de votes">
+
+        <div class="votes-card__row">
+          <!-- Compteur de votes -->
+          <div class="votes-card__group">
+            <span class="votes-card__label">Votes</span>
+            <span class="votes-card__value" aria-label="1 842 votes">1 842</span>
+          </div>
+          <!-- Classement -->
+          <div class="votes-card__group" style="text-align: right;">
+            <span class="votes-card__label">Rang</span>
+            <span class="votes-card__value votes-card__value--rank" aria-label="Rang numéro 1">#1</span>
+          </div>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="progress-track" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" aria-label="30 % des votes du tremplin">
+          <div class="progress-fill"></div>
+        </div>
+        <p class="progress-label">30 % des votes du tremplin</p>
+
+      </section><!-- /votes-card -->
+
+      <!-- Barre d'actions secondaires -->
+      <div class="actions-bar" role="group" aria-label="Actions sur l'œuvre">
+
+        <!-- Sauvegarder -->
+        <button class="action-btn" aria-label="Sauvegarder l'œuvre">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          Save
+        </button>
+
+        <!-- Commenter -->
+        <button class="action-btn" aria-label="Commenter l'œuvre">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Com.
+        </button>
+
+        <!-- Partager -->
+        <button class="action-btn" aria-label="Partager l'œuvre">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="18 15 12 9 6 15"/>
+            <line x1="12" y1="9" x2="12" y2="23"/>
+            <path d="M4 4h16"/>
+          </svg>
+          Part.
+        </button>
+
+        <!-- Don -->
+        <button class="action-btn" aria-label="Faire un don à l'artiste">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          Don
+        </button>
+
+        <!-- Plus d'options -->
+        <button class="action-btn" aria-label="Plus d'options">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="1"/>
+            <circle cx="19" cy="12" r="1"/>
+            <circle cx="5"  cy="12" r="1"/>
+          </svg>
+          Plus
+        </button>
+
+      </div><!-- /actions-bar -->
+
+    </div><!-- /content -->
+
+
+    <!-- ── CTA Voter sticky ── -->
+    <div class="cta-sticky">
+      <button class="btn-vote" aria-label="Voter pour Néon sur Seine">
+        ▲ Voter pour cette œuvre
+      </button>
+    </div>
+
+  </main><!-- /screen -->
+
+
+  <!-- ── Navigation bas ── -->
+  <nav class="bottom-nav" aria-label="Navigation principale">
+
+    <button class="nav-item" aria-label="Accueil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span class="nav-item__label">Accueil</span>
+    </button>
+
+    <button class="nav-item" aria-label="Découverte">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span class="nav-item__label">Découverte</span>
+    </button>
+
+    <!-- Voter — onglet actif -->
+    <button class="nav-item nav-item--active" aria-current="page" aria-label="Voter">
+      <div class="nav-item__disc" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="var(--color-navy)" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+      </div>
+      <span class="nav-item__label">Voter</span>
+    </button>
+
+    <button class="nav-item" aria-label="Mon profil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-item__label">Profil</span>
+    </button>
+
+  </nav><!-- /bottom-nav -->
+
+</div><!-- /phone -->
+
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce — Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS — variables du design system Bounce
+       ============================================================ */
+    :root {
+      --color-purple : #5202FC;
+      --color-lime   : #BAD532;
+      --color-orange : #FF9939;
+      --color-navy   : #0C1244;
+      --color-cream  : #FFFCE1;
+      --color-white  : #FFFFFF;
+
+      --font-base    : 'Montserrat', system-ui, sans-serif;
+
+      /* Rayons — cohérents avec les letterforms arrondis du logo */
+      --radius-sm    : 10px;
+      --radius-md    : 16px;
+      --radius-lg    : 24px;
+      --radius-xl    : 28px;
+      --radius-pill  : 100px;
+
+      /* Ombre sticker : décalage solid, sans blur, identité de la marque */
+      --shadow-sticker : 4px 4px 0 var(--color-navy);
+
+      /* Easing bounce — en accord avec le nom de la marque */
+      --ease-bounce  : cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    /* ============================================================
+       RESET léger
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ============================================================
+       FOND DE PAGE — simule l'écran autour du téléphone
+       ============================================================ */
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #b8b2a0;
+      font-family: var(--font-base);
+    }
+
+    /* ============================================================
+       SHELL — cadre téléphone 390 × 844
+       ============================================================ */
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      background: var(--color-cream);
+      border-radius: 48px;
+      overflow: hidden;
+
+      /* Effet cadre téléphone */
+      box-shadow:
+        0 0 0 10px #111111,
+        0 40px 80px rgba(0, 0, 0, .45);
+    }
+
+    /* ============================================================
+       LAYOUT — les trois zones verticales
+       ============================================================ */
+
+    /* Barre de statut (horloge, signal…) */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px 4px;
+      color: var(--color-navy);
+    }
+
+    .status-bar__time {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* Notch dynamique stylisé */
+    .status-bar__notch {
+      width: 120px;
+      height: 32px;
+      background: #111;
+      border-radius: 20px;
+    }
+
+    .status-bar__icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Icône batterie en pur CSS */
+    .icon-battery {
+      display: flex;
+      gap: 1px;
+      align-items: center;
+    }
+    .icon-battery__body {
+      width: 22px;
+      height: 11px;
+      border: 1.5px solid var(--color-navy);
+      border-radius: 3px;
+      padding: 1.5px;
+      display: flex;
+      gap: 1.5px;
+    }
+    .icon-battery__bar {
+      flex: 1;
+      background: var(--color-navy);
+      border-radius: 1px;
+    }
+
+    /* Zone principale scrollable */
+    .screen {
+      height: calc(844px - 84px); /* hauteur totale − nav bas */
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 16px;
+    }
+    .screen::-webkit-scrollbar { display: none; }
+
+    /* Barre de navigation bas fixée */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 84px;
+      background: var(--color-cream);
+      border-top: 2.5px solid var(--color-navy);
+      display: flex;
+      align-items: flex-start;
+      padding-top: 10px;
+    }
+
+    /* ============================================================
+       HEADER — logo + cloche + avatar
+       ============================================================ */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px 12px;
+    }
+
+    /* Logo b°unce */
+    .header__logo {
+      font-size: 28px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--color-purple);
+      letter-spacing: -1px;
+      line-height: 1;
+      user-select: none;
+    }
+    /* Le ° en vert lime */
+    .header__logo-dot {
+      color: var(--color-lime);
+      font-size: 15px;       /* ≈ 0.55em */
+      vertical-align: super;
+      font-style: normal;
+      line-height: 0;
+    }
+
+    .header__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Conteneur cloche (badge positionné en absolu) */
+    .header__bell-wrap {
+      position: relative;
+    }
+
+    /* Bouton icône générique circulaire */
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2.5px solid var(--color-navy);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 120ms var(--ease-bounce);
+    }
+    .icon-btn:active { transform: scale(.92); }
+
+    /* Badge numérique rouge/violet sur la cloche */
+    .header__badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--color-purple);
+      color: var(--color-white);
+      font-size: 9px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--color-cream); /* halo pour lisibilité */
+    }
+
+    /* Avatar initiale de l'utilisateur */
+    .header__avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--color-purple);
+      color: var(--color-white);
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2.5px solid var(--color-navy);
+      cursor: pointer;
+    }
+
+    /* ============================================================
+       SECTION HERO — carte tremplin principal
+       ============================================================ */
+    .section { padding: 0 16px 16px; }
+
+    /* Carte hero avec dégradé de fond évoquant "la nuit" */
+    .hero-card {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      padding: 16px;
+      min-height: 228px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sticker);
+
+      /* Blobs orange + violet sur fond sombre */
+      background:
+        radial-gradient(ellipse at 85% 15%, rgba(255, 153, 57, .75) 0%, transparent 45%),
+        radial-gradient(ellipse at 15% 85%, rgba(82,   2, 252, .55) 0%, transparent 45%),
+        #2a1a12;
+    }
+
+    .hero-card__badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Groupe bas de la carte : label + titre + countdown */
+    .hero-card__body { display: flex; flex-direction: column; gap: 0; }
+
+    .hero-card__label {
+      font-size: 10px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, .5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .hero-card__title {
+      font-size: 38px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--color-white);
+      line-height: 1.05;
+      margin-bottom: 12px;
+    }
+
+    .hero-card__countdown-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .5);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* Ligne countdown + sponsor */
+    .hero-card__countdown-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Pastille sponsor (ARTE) */
+    .hero-card__sponsor {
+      margin-left: auto;
+      background: rgba(255, 255, 255, .18);
+      border: 1.5px solid rgba(255, 255, 255, .25);
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--color-white);
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ============================================================
+       COMPOSANT : pastille pill générique
+       ============================================================ */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .pill--live    { background: var(--color-lime);  color: var(--color-navy); }
+    .pill--outline { background: transparent; color: var(--color-white); border: 1.5px solid rgba(255,255,255,.5); }
+
+    /* Dot "live" à l'intérieur de la pill */
+    .pill__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-navy);
+      display: inline-block;
+    }
+
+    /* ============================================================
+       COMPOSANT : pilule countdown
+       ============================================================ */
+    .countdown {
+      display: flex;
+      gap: 6px;
+    }
+
+    .countdown__pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 11px;
+      min-width: 42px;
+      border-radius: 12px;
+
+      /* Variante dark (fond navy) */
+      background: var(--color-navy);
+      color: var(--color-white);
+    }
+
+    .countdown__num  { font-size: 19px; font-weight: 900; line-height: 1; }
+    .countdown__unit { font-size: 9px;  font-weight: 700; opacity: .65;  }
+
+    /* ============================================================
+       SECTION : prochains & passés (scroll horizontal)
+       ============================================================ */
+    .section-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--color-navy);
+      margin-bottom: 10px;
+    }
+
+    .upcoming-list {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+
+      /* Masque la scrollbar */
+      scrollbar-width: none;
+    }
+    .upcoming-list::-webkit-scrollbar { display: none; }
+
+    /* Carte tremplin dans la liste horizontale */
+    .upcoming-card {
+      min-width: 148px;
+      border-radius: 20px;
+      padding: 14px 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+      box-shadow: var(--shadow-sticker);
+    }
+
+    .upcoming-card--orange { background: var(--color-orange); }
+    .upcoming-card--green  { background: #7ac23a; }
+    .upcoming-card--purple { background: var(--color-purple); }
+
+    .upcoming-card__sub {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      opacity: .5;
+    }
+
+    .upcoming-card__name {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    /* Couleur du texte selon le fond */
+    .upcoming-card--orange .upcoming-card__sub,
+    .upcoming-card--green  .upcoming-card__sub  { color: var(--color-navy); }
+    .upcoming-card--purple .upcoming-card__sub  { color: var(--color-white); }
+
+    .upcoming-card--orange .upcoming-card__name,
+    .upcoming-card--green  .upcoming-card__name  { color: var(--color-navy); }
+    .upcoming-card--purple .upcoming-card__name  { color: var(--color-white); }
+
+    /* ============================================================
+       SECTION : filtres chips
+       ============================================================ */
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 16px 14px;
+      scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: transform 120ms var(--ease-bounce);
+      border: 2px solid var(--color-navy);
+    }
+    .chip:active { transform: scale(.95); }
+
+    .chip--active   { background: var(--color-navy); color: var(--color-cream); }
+    .chip--inactive { background: transparent;       color: var(--color-navy); }
+
+    /* ============================================================
+       SECTION : grille d'œuvres
+       ============================================================ */
+    .feed-grid {
+      padding: 0 16px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Carte œuvre */
+    .artwork-card {
+      border-radius: 20px;
+      aspect-ratio: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: var(--shadow-sticker);
+    }
+
+    /* Dégradés blobs abstraits pour simuler les œuvres */
+    .artwork-card--1 {
+      background:
+        radial-gradient(ellipse at 25% 75%, rgba(255,153, 57,.85) 0%, transparent 48%),
+        radial-gradient(ellipse at 75% 25%, rgba( 82,  2,252,.70) 0%, transparent 48%),
+        #1a0f2e;
+    }
+    .artwork-card--2 {
+      background:
+        radial-gradient(ellipse at 60% 40%, rgba(255,255,255,.90) 0%, transparent 32%),
+        radial-gradient(ellipse at 30% 70%, rgba( 82,  2,252,.80) 0%, transparent 42%),
+        #5a7cbb;
+    }
+    .artwork-card--3 {
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(186,213, 50,.70) 0%, transparent 40%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,153, 57,.80) 0%, transparent 45%),
+        #0d1a3a;
+    }
+    .artwork-card--4 {
+      background:
+        radial-gradient(ellipse at 40% 50%, rgba(255,153, 57,.70) 0%, transparent 42%),
+        radial-gradient(ellipse at 70% 30%, rgba(186,213, 50,.60) 0%, transparent 40%),
+        #111520;
+    }
+
+    /* Tag discipline (PHOTO, ILLUSTRATION…) */
+    .artwork-card__tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+
+      /* Réutilise .pill mais inliné ici pour lisibilité */
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .artwork-card__tag--photo        { background: var(--color-purple); color: var(--color-white); }
+    .artwork-card__tag--illustration { background: var(--color-orange);  color: var(--color-navy);  }
+    .artwork-card__tag--3d           { background: var(--color-navy);    color: var(--color-white); }
+
+    /* Gradient overlay en bas de la carte + titre + votes */
+    .artwork-card__overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 100%);
+      padding: 28px 10px 10px;
+    }
+
+    .artwork-card__title {
+      color: var(--color-white);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .artwork-card__votes {
+      color: var(--color-lime);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       NAVIGATION BAS — 4 onglets
+       ============================================================ */
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(12, 18, 68, .35);
+      font-family: var(--font-base);
+      position: relative;
+    }
+
+    .nav-item--active { color: var(--color-navy); }
+
+    /* Disque lime sous l'onglet actif */
+    .nav-item__disc {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: var(--color-lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 0 var(--color-navy);
+    }
+
+    .nav-item__label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .nav-item--active .nav-item__label {
+      font-weight: 800;
+      margin-top: 28px; /* décale le label sous le disque */
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     SHELL TÉLÉPHONE
+     ============================================================ -->
+<div class="phone">
+
+  <!-- ── Barre de statut ── -->
+  <div class="status-bar" role="status" aria-label="Statut système">
+    <span class="status-bar__time">9:41</span>
+
+    <!-- Notch dynamique -->
+    <div class="status-bar__notch" aria-hidden="true"></div>
+
+    <!-- Icônes réseau + batterie -->
+    <div class="status-bar__icons" aria-hidden="true">
+      <!-- Signal barres -->
+      <svg width="16" height="12" viewBox="0 0 17 12" aria-hidden="true">
+        <rect x="0"    y="4"   width="3" height="8"    rx="1" fill="var(--color-navy)"/>
+        <rect x="4.5"  y="2.5" width="3" height="9.5"  rx="1" fill="var(--color-navy)"/>
+        <rect x="9"    y="1"   width="3" height="11"   rx="1" fill="var(--color-navy)"/>
+        <rect x="13.5" y="0"   width="3" height="12"   rx="1" fill="var(--color-navy)"/>
+      </svg>
+
+      <!-- Wi-Fi -->
+      <svg width="15" height="12" viewBox="0 0 16 12" fill="none" aria-hidden="true">
+        <path d="M8 3C10.2 3 12.2 3.9 13.6 5.4L15 4C13.2 2.1 10.7 1 8 1C5.3 1 2.8 2.1 1 4L2.4 5.4C3.8 3.9 5.8 3 8 3Z" fill="var(--color-navy)"/>
+        <path d="M8 6C9.4 6 10.7 6.6 11.6 7.5L13 6.1C11.7 4.8 10 4 8 4C6 4 4.3 4.8 3 6.1L4.4 7.5C5.3 6.6 6.6 6 8 6Z" fill="var(--color-navy)"/>
+        <circle cx="8" cy="10" r="1.5" fill="var(--color-navy)"/>
+      </svg>
+
+      <!-- Batterie CSS pur -->
+      <div class="icon-battery" aria-label="Batterie pleine">
+        <div class="icon-battery__body">
+          <div class="icon-battery__bar"></div>
+          <div class="icon-battery__bar"></div>
+          <div class="icon-battery__bar"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /status-bar -->
+
+
+  <!-- ── Zone scrollable ── -->
+  <main class="screen">
+
+    <!-- ── Header : logo + actions ── -->
+    <header class="header">
+      <!-- Logo b°unce -->
+      <div class="header__logo" aria-label="Bounce">
+        b<span class="header__logo-dot">°</span>unce
+      </div>
+
+      <div class="header__actions">
+        <!-- Cloche notifications -->
+        <div class="header__bell-wrap">
+          <button class="icon-btn" aria-label="Notifications (3 non lues)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="var(--color-navy)" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
+          <span class="header__badge" aria-hidden="true">3</span>
+        </div>
+
+        <!-- Avatar utilisateur -->
+        <div class="header__avatar" role="button" tabindex="0" aria-label="Mon profil">M</div>
+      </div>
+    </header><!-- /header -->
+
+
+    <!-- ── Section : tremplin héro ── -->
+    <section class="section" aria-labelledby="hero-title">
+      <article class="hero-card" role="button" tabindex="0" aria-label="Voir le tremplin La nuit">
+
+        <!-- Badges statut -->
+        <div class="hero-card__badges">
+          <span class="pill pill--live">
+            <span class="pill__dot" aria-hidden="true"></span>
+            En cours
+          </span>
+          <span class="pill pill--outline">Sponsorisé</span>
+        </div>
+
+        <!-- Corps de la carte -->
+        <div class="hero-card__body">
+          <p class="hero-card__label">Tremplin #24</p>
+          <h2 class="hero-card__title" id="hero-title">La nuit.</h2>
+
+          <p class="hero-card__countdown-label">Se termine dans</p>
+
+          <div class="hero-card__countdown-row">
+            <!-- Countdown jours / heures / minutes / secondes -->
+            <div class="countdown" role="timer" aria-label="Temps restant : 3 jours 14 heures 22 minutes">
+              <div class="countdown__pill">
+                <span class="countdown__num">03</span>
+                <span class="countdown__unit">j</span>
+              </div>
+              <div class="countdown__pill">
+                <span class="countdown__num">14</span>
+                <span class="countdown__unit">h</span>
+              </div>
+              <div class="countdown__pill">
+                <span class="countdown__num">22</span>
+                <span class="countdown__unit">m</span>
+              </div>
+              <div class="countdown__pill">
+                <span class="countdown__num">08</span>
+                <span class="countdown__unit">s</span>
+              </div>
+            </div>
+
+            <!-- Sponsor -->
+            <div class="hero-card__sponsor" aria-label="Sponsorisé par Arte">
+              par<br>ARTE
+            </div>
+          </div>
+        </div>
+
+      </article>
+    </section><!-- /hero -->
+
+
+    <!-- ── Section : prochains & passés ── -->
+    <section class="section" aria-labelledby="upcoming-title">
+      <h3 class="section-title" id="upcoming-title">Prochains &amp; passés</h3>
+
+      <ul class="upcoming-list" role="list">
+        <li>
+          <article class="upcoming-card upcoming-card--orange">
+            <p class="upcoming-card__sub">Bientôt</p>
+            <h4 class="upcoming-card__name">Le silence</h4>
+          </article>
+        </li>
+        <li>
+          <article class="upcoming-card upcoming-card--green">
+            <p class="upcoming-card__sub">Bientôt</p>
+            <h4 class="upcoming-card__name">Matière brute</h4>
+          </article>
+        </li>
+        <li>
+          <article class="upcoming-card upcoming-card--purple">
+            <p class="upcoming-card__sub">Terminé</p>
+            <h4 class="upcoming-card__name">Rituel</h4>
+          </article>
+        </li>
+      </ul>
+    </section><!-- /upcoming -->
+
+
+    <!-- ── Filtres disciplines ── -->
+    <nav class="chips" aria-label="Filtrer par discipline">
+      <button class="chip chip--active"   aria-pressed="true">Tous</button>
+      <button class="chip chip--inactive" aria-pressed="false">Illustration</button>
+      <button class="chip chip--inactive" aria-pressed="false">Photo</button>
+      <button class="chip chip--inactive" aria-pressed="false">Musique</button>
+      <button class="chip chip--inactive" aria-pressed="false">Danse</button>
+      <button class="chip chip--inactive" aria-pressed="false">3D</button>
+    </nav><!-- /chips -->
+
+
+    <!-- ── Grille des œuvres ── -->
+    <section class="feed-grid" aria-label="Œuvres du tremplin">
+
+      <article class="artwork-card artwork-card--1">
+        <span class="artwork-card__tag artwork-card__tag--photo">Photo</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Néon sur Seine</p>
+          <p class="artwork-card__votes">▲ 842</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--2">
+        <span class="artwork-card__tag artwork-card__tag--illustration">Illustration</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Playground</p>
+          <p class="artwork-card__votes">▲ 1 203</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--3">
+        <span class="artwork-card__tag artwork-card__tag--photo">Photo</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Minuit Paris</p>
+          <p class="artwork-card__votes">▲ 634</p>
+        </div>
+      </article>
+
+      <article class="artwork-card artwork-card--4">
+        <span class="artwork-card__tag artwork-card__tag--3d">3D</span>
+        <div class="artwork-card__overlay">
+          <p class="artwork-card__title">Abstraction 3D</p>
+          <p class="artwork-card__votes">▲ 521</p>
+        </div>
+      </article>
+
+    </section><!-- /feed-grid -->
+
+  </main><!-- /screen -->
+
+
+  <!-- ── Navigation bas ── -->
+  <nav class="bottom-nav" aria-label="Navigation principale">
+
+    <!-- Accueil (actif) -->
+    <button class="nav-item nav-item--active" aria-label="Accueil" aria-current="page">
+      <div class="nav-item__disc" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="var(--color-navy)" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <span class="nav-item__label">Accueil</span>
+    </button>
+
+    <!-- Découverte -->
+    <button class="nav-item" aria-label="Découverte">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span class="nav-item__label">Découverte</span>
+    </button>
+
+    <!-- Voter -->
+    <button class="nav-item" aria-label="Voter">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+      <span class="nav-item__label">Voter</span>
+    </button>
+
+    <!-- Profil -->
+    <button class="nav-item" aria-label="Mon profil">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span class="nav-item__label">Profil</span>
+    </button>
+
+  </nav><!-- /bottom-nav -->
+
+</div><!-- /phone -->
+
+</body>
+</html>
