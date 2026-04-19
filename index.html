@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce — Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700;1,800;1,900&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'CY Grotesk Grand';
+      src: url('fonts/kobuzan-cy-grotesk-grand-dark_1__2_.otf') format('opentype');
+      font-weight: 900;
+      font-display: swap;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+    :root {
+      --purple:  #5202FC;
+      --lime:    #BAD532;
+      --orange:  #FF9939;
+      --navy:    #0C1244;
+      --cream:   #FFFCE1;
+      --black:   #111111;
+      --white:   #ffffff;
+      --font-display: 'CY Grotesk Grand', 'Montserrat', system-ui, sans-serif;
+      --font-body:    'Montserrat', system-ui, sans-serif;
+      --r-sm: 8px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px; --r-pill: 100px;
+      --shadow-sm:   3px 3px 0 var(--navy);
+      --shadow-md:   4px 4px 0 var(--navy);
+      --shadow-lg:   8px 8px 0 var(--navy);
+      --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+      --dur-q: 120ms; --dur-d: 220ms; --dur-e: 420ms;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--cream); color: var(--navy); overflow-x: hidden; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--cream); border-bottom: 2.5px solid var(--navy);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 48px; gap: 16px;
+    }
+    .nav-logo {
+      font-size: 22px; font-weight: 900; font-style: italic;
+      color: var(--purple); letter-spacing: -0.5px; line-height: 1;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .nav-logo sup { color: var(--lime); font-size: .55em; font-style: normal; line-height: 0; vertical-align: super; }
+    .nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .nav-link {
+      font-size: 12px; font-weight: 700; color: var(--navy); text-decoration: none;
+      padding: 6px 14px; border-radius: var(--r-pill); border: 2px solid transparent;
+      transition: all var(--dur-q) var(--ease-bounce);
+    }
+    .nav-link:hover { border-color: var(--navy); transform: translateY(-1px); }
+    .nav-link.active { background: var(--navy); color: var(--cream); }
+    .nav-cta {
+      padding: 8px 20px; background: var(--purple); color: var(--white);
+      border-radius: var(--r-pill); font-size: 12px; font-weight: 800;
+      text-decoration: none; box-shadow: var(--shadow-md);
+      transition: all var(--dur-q) var(--ease-bounce); flex-shrink: 0;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 var(--navy); }
+    .nav-cta:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--navy); }
+
+    /* ── Layout helpers ── */
+    .inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+    .eyebrow {
+      font-size: 11px; font-weight: 800; letter-spacing: 2.5px;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 72px); font-weight: 900;
+      letter-spacing: -1px; line-height: 1; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* ── Hero ── */
+    #hero { background: var(--navy); padding: 96px 0 80px; position: relative; overflow: hidden; }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(80px, 12vw, 180px); font-weight: 900;
+      color: var(--white); letter-spacing: -3px; line-height: .9;
+      text-transform: uppercase; margin-bottom: 28px;
+    }
+    .hero-title .deg { color: var(--lime); font-size: .55em; vertical-align: super; line-height: 0; }
+    .hero-tagline {
+      font-size: clamp(18px, 2.5vw, 28px); font-weight: 700; font-style: italic;
+      color: var(--orange); margin-bottom: 40px;
+    }
+    .hero-pills { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .pill-lime {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--r-pill);
+      background: var(--lime); color: var(--navy);
+      font-size: 13px; font-weight: 700;
+      box-shadow: 4px 4px 0 rgba(255,255,255,.15);
+    }
+    .pill-lime .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--navy); }
+    .pill-outline {
+      display: inline-flex; padding: 10px 20px; border-radius: var(--r-pill);
+      border: 2px solid rgba(255,255,255,.35); color: rgba(255,255,255,.75);
+      font-size: 13px; font-weight: 600;
+    }
+    .hero-squiggle {
+      position: absolute; right: -60px; top: 50%; transform: translateY(-50%);
+      width: 500px; height: 500px; opacity: .07; pointer-events: none;
+    }
+
+    /* ── Mission ── */
+    #mission { background: var(--cream); padding: 96px 0; border-bottom: 2.5px solid var(--navy); }
+    .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+    .mission-card {
+      background: var(--navy); border-radius: var(--r-xl); padding: 32px;
+      box-shadow: var(--shadow-lg); transition: transform var(--dur-d) var(--ease-bounce);
+    }
+    .mission-card:nth-child(1) { transform: rotate(-1.5deg); }
+    .mission-card:nth-child(2) { transform: rotate(1deg); }
+    .mission-card:hover { transform: rotate(0) translateY(-4px); }
+    .mission-icon {
+      width: 48px; height: 48px; border-radius: var(--r-md); background: var(--lime);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+    }
+    .mission-card h3 { font-size: 19px; font-weight: 900; color: var(--white); margin-bottom: 10px; font-style: italic; }
+    .mission-card p { font-size: 14px; line-height: 1.75; color: rgba(255,255,255,.6); }
+
+    /* ── Couleurs ── */
+    #couleurs { background: var(--purple); padding: 96px 0; }
+    .colors-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 48px; }
+    .color-card {
+      border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-lg);
+      transition: transform var(--dur-d) var(--ease-bounce);
+    }
+    .color-card:hover { transform: translateY(-4px) rotate(.8deg); }
+    .color-swatch { height: 110px; border-bottom: 2.5px solid var(--navy); }
+    .color-info { background: var(--cream); padding: 20px 24px; }
+    .color-token { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--purple); margin-bottom: 4px; }
+    .color-hex { font-size: 22px; font-weight: 900; color: var(--navy); font-style: italic; margin-bottom: 6px; }
+    .color-name { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .color-meaning { font-size: 12px; line-height: 1.6; color: rgba(12,18,68,.55); }
+    .usage-box {
+      margin-top: 28px; background: rgba(255,255,255,.1); border-radius: var(--r-xl);
+      padding: 32px; border: 2px solid rgba(255,255,255,.2);
+    }
+    .usage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 16px; }
+    .usage-cell-title { font-size: 13px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
+    .usage-cell-body { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.65; }
+
+    /* ── Typographie ── */
+    #typographie { background: var(--navy); padding: 96px 0; }
+    .type-block {
+      margin-top: 40px; padding: 40px; background: rgba(255,255,255,.04);
+      border-radius: var(--r-xl); border: 2px solid rgba(255,255,255,.1); margin-bottom: 16px;
+    }
+    .type-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--lime); margin-bottom: 16px; }
+    .display-sample {
+      font-family: var(--font-display); font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; color: var(--white); text-transform: uppercase;
+      letter-spacing: -2px; line-height: .92; transform: skewX(-4deg);
+      display: inline-block;
+    }
+    .type-weights { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .tw-row { display: flex; align-items: baseline; gap: 16px; }
+    .tw-lbl { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.35); width: 80px; flex-shrink: 0; }
+    .type-rules {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;
+    }
+    .type-rule-card {
+      background: rgba(255,255,255,.05); border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: var(--r-lg); padding: 24px;
+    }
+    .type-rule-card p { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.7; }
+
+    /* ── Éléments graphiques ── */
+    #elements { background: var(--cream); padding: 96px 0; border-top: 2.5px solid var(--navy); }
+    .elements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+    .el-card {
+      background: var(--white); border-radius: var(--r-xl); padding: 32px;
+      border: 2.5px solid var(--navy); box-shadow: var(--shadow-md);
+    }
+    .el-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); margin-bottom: 20px; }
+    .shadow-demo { display: flex; flex-direction: column; gap: 12px; }
+    .shadow-item {
+      height: 48px; border-radius: var(--r-pill); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; font-weight: 800; border: 2.5px solid var(--navy);
+    }
+    .radius-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .radius-item {
+      aspect-ratio: 1; background: var(--purple); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      font-size: 12px; font-weight: 800; color: var(--white);
+    }
+    .squiggle-preview {
+      height: 140px;
+      background: linear-gradient(135deg, var(--orange), rgba(186,213,50,.3), var(--purple));
+      border-radius: var(--r-lg); display: flex; align-items: center;
+      justify-content: center; margin-bottom: 16px; overflow: hidden;
+    }
+    .elements-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+
+    /* ── Composants ── */
+    #composants { background: var(--orange); padding: 96px 0; }
+    .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 48px; }
+    .comp-card {
+      background: var(--cream); border-radius: var(--r-xl); padding: 32px;
+      border: 2.5px solid var(--navy); box-shadow: var(--shadow-lg);
+    }
+    .comp-card-dark { background: var(--navy); }
+    .comp-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); margin-bottom: 20px; }
+    .comp-label-inv { color: rgba(255,255,255,.4); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 26px; border-radius: var(--r-pill);
+      font-family: var(--font-body); font-size: 13px; font-weight: 800;
+      border: 2.5px solid var(--navy); cursor: pointer;
+      transition: all var(--dur-d) var(--ease-bounce);
+    }
+    .btn-purple { background: var(--purple); color: var(--white); box-shadow: var(--shadow-md); }
+    .btn-purple:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 var(--navy); }
+    .btn-purple:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--navy); }
+    .btn-outline { background: transparent; color: var(--navy); }
+    .btn-outline:hover { background: var(--navy); color: var(--cream); }
+    .btn-lime-b { background: var(--lime); color: var(--navy); box-shadow: var(--shadow-md); }
+    .btn-lime-b:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 var(--navy); }
+    .btn-full { width: 100%; margin-top: 12px; }
+    .btns-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      padding: 8px 18px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700;
+      cursor: pointer; border: 2px solid var(--navy);
+      transition: all var(--dur-q) var(--ease-bounce);
+    }
+    .chip:active { transform: scale(.95); }
+    .chip-on { background: var(--navy); color: var(--cream); }
+    .chip-off { background: transparent; color: var(--navy); }
+    .chip-don { background: rgba(255,255,255,.12); color: var(--white); border-color: rgba(255,255,255,.2); }
+    .chip-don-on { background: var(--white); color: var(--navy); border-color: var(--white); }
+    .chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .artwork-demo {
+      height: 160px;
+      background: radial-gradient(ellipse at 25% 75%,rgba(255,153,57,.85) 0%,transparent 48%),
+                  radial-gradient(ellipse at 75% 25%,rgba(82,2,252,.7) 0%,transparent 48%),
+                  radial-gradient(ellipse at 55% 55%,rgba(186,213,50,.4) 0%,transparent 50%),
+                  #1a0f2e;
+    }
+    .card-demo {
+      border-radius: var(--r-xl); border: 2.5px solid var(--navy);
+      box-shadow: var(--shadow-lg); overflow: hidden;
+      transform: rotate(2deg); transition: transform var(--dur-d) var(--ease-bounce);
+    }
+    .card-demo:hover { transform: rotate(0) translateY(-4px); }
+    .card-demo-body { padding: 18px 22px; }
+    .card-tag {
+      display: inline-flex; padding: 4px 12px; border-radius: var(--r-pill);
+      font-size: 9px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+      background: var(--purple); color: var(--white); margin-bottom: 8px;
+    }
+    .card-title { font-size: 17px; font-weight: 900; font-style: italic; color: var(--navy); margin-bottom: 2px; }
+    .card-meta { font-size: 12px; color: rgba(12,18,68,.5); font-weight: 600; }
+    .countdown { display: flex; gap: 8px; }
+    .cd-pill {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 12px 14px; border-radius: 14px; min-width: 52px;
+      background: var(--navy); color: var(--white);
+    }
+    .cd-num { font-size: 24px; font-weight: 900; line-height: 1; }
+    .cd-unit { font-size: 10px; font-weight: 700; opacity: .5; margin-top: 2px; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--r-pill);
+      font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+    }
+
+    /* ── Motion ── */
+    #motion { background: var(--lime); padding: 96px 0; border-top: 2.5px solid var(--navy); border-bottom: 2.5px solid var(--navy); }
+    .motion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+    .motion-card {
+      background: var(--cream); border-radius: var(--r-xl); padding: 32px;
+      border: 2.5px solid var(--navy); box-shadow: var(--shadow-md); text-align: center;
+    }
+    .motion-ball {
+      width: 64px; height: 64px; border-radius: 50%; background: var(--purple);
+      margin: 0 auto 20px; border: 3px solid var(--navy); cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--dur-d) var(--ease-bounce), box-shadow var(--dur-d);
+    }
+    .motion-ball:hover { transform: scale(1.3) translateY(-6px); box-shadow: 6px 10px 0 var(--navy); }
+    .motion-ball:active { transform: scale(.9) translate(2px,2px); box-shadow: 2px 2px 0 var(--navy); }
+    .motion-sq {
+      width: 64px; height: 64px; border-radius: var(--r-lg); background: var(--orange);
+      margin: 0 auto 20px; border: 3px solid var(--navy); cursor: pointer;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--dur-d) var(--ease-bounce), box-shadow var(--dur-d);
+    }
+    .motion-sq:hover { transform: scale(0.9) translate(4px,4px); box-shadow: 2px 2px 0 var(--navy); }
+    .motion-card h3 { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+    .motion-card p { font-size: 13px; line-height: 1.65; color: rgba(12,18,68,.65); }
+    .motion-card code {
+      font-size: 11px; background: rgba(12,18,68,.08); padding: 4px 10px;
+      border-radius: 6px; font-family: 'Courier New', monospace;
+      color: var(--purple); display: inline-block; margin-top: 8px;
+    }
+    .timing-box {
+      margin-top: 28px; background: rgba(12,18,68,.08); border-radius: var(--r-xl);
+      padding: 32px; border: 2.5px solid var(--navy);
+    }
+    .timing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 16px; }
+    .timing-val { font-size: 36px; font-weight: 900; font-style: italic; color: var(--navy); }
+    .timing-lbl { font-size: 13px; font-weight: 700; color: rgba(12,18,68,.55); margin-top: 4px; }
+
+    /* ── Les interdits ── */
+    #interdits { background: var(--navy); padding: 96px 0; }
+    .interdits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
+    .interdit-item {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 22px; border-radius: var(--r-lg);
+      background: rgba(255,255,255,.05); border: 1.5px solid rgba(255,255,255,.1);
+    }
+    .interdit-x {
+      width: 38px; height: 38px; border-radius: 50%; background: #e53e3e;
+      color: var(--white); display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 900; flex-shrink: 0;
+    }
+    .interdit-text { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.75); line-height: 1.5; }
+
+    /* ── Prototypes ── */
+    #prototypes { background: var(--cream); padding: 96px 0; border-top: 2.5px solid var(--navy); }
+    .proto-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
+    .proto-card {
+      border-radius: var(--r-xl); border: 2.5px solid var(--navy);
+      box-shadow: var(--shadow-lg); overflow: hidden; text-decoration: none; display: block;
+      transition: transform var(--dur-d) var(--ease-bounce), box-shadow var(--dur-d);
+    }
+    .proto-card:hover { transform: translateY(-5px); box-shadow: 8px 13px 0 var(--navy); }
+    .proto-card:active { transform: translate(4px,4px); box-shadow: 4px 4px 0 var(--navy); }
+    .proto-preview {
+      height: 200px; display: flex; align-items: center; justify-content: center;
+    }
+    .proto-preview-inner { text-align: center; }
+    .proto-preview-label { font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .proto-preview-title { font-size: 34px; font-weight: 900; font-style: italic; }
+    .proto-body { background: var(--cream); padding: 26px 30px; border-top: 2.5px solid var(--navy); }
+    .proto-num { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--purple); margin-bottom: 6px; }
+    .proto-title { font-size: 22px; font-weight: 900; font-style: italic; color: var(--navy); margin-bottom: 8px; }
+    .proto-desc { font-size: 13px; line-height: 1.65; color: rgba(12,18,68,.6); margin-bottom: 18px; }
+    .proto-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 20px; border-radius: var(--r-pill);
+      background: var(--navy); color: var(--cream);
+      font-size: 12px; font-weight: 800;
+      box-shadow: 3px 3px 0 var(--purple);
+    }
+
+    /* ── Footer ── */
+    footer { background: var(--purple); padding: 64px 0; border-top: 2.5px solid var(--navy); }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .footer-logo {
+      font-size: 32px; font-weight: 900; font-style: italic;
+      color: var(--cream); letter-spacing: -1px; line-height: 1;
+    }
+    .footer-logo sup { color: var(--lime); font-size: .55em; font-style: normal; vertical-align: super; line-height: 0; }
+    .footer-tagline { font-size: 18px; font-weight: 700; font-style: italic; color: var(--orange); }
+    .footer-meta { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.4); text-align: right; }
+
+    /* ── Animations ── */
+    @keyframes float-in {
+      from { opacity: 0; transform: translateY(16px) scale(.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes squiggle-wobble {
+      0%, 100% { transform: rotate(-4deg); }
+      50%       { transform: rotate(4deg); }
+    }
+    .entering { animation: float-in var(--dur-e) var(--ease-bounce) both; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .inner, .nav { padding-left: 32px; padding-right: 32px; }
+      .colors-grid { grid-template-columns: repeat(2, 1fr); }
+      .elements-grid, .interdits-grid { grid-template-columns: 1fr 1fr; }
+      .type-rules { grid-template-columns: 1fr 1fr; }
+      .usage-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .inner, .nav { padding-left: 20px; padding-right: 20px; }
+      .nav-links { display: none; }
+      #hero, #mission, #couleurs, #typographie, #elements,
+      #composants, #motion, #interdits, #prototypes { padding: 64px 0; }
+      .colors-grid, .elements-grid, .motion-grid,
+      .interdits-grid, .comp-grid, .proto-grid,
+      .mission-grid, .elements-bottom { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; text-align: center; }
+      .timing-grid { grid-template-columns: 1fr; }
+      .type-rules { grid-template-columns: 1fr; }
+      .usage-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav" aria-label="Navigation principale">
+  <a href="#hero" class="nav-logo">b<sup>°</sup>unce</a>
+  <div class="nav-links">
+    <a href="#couleurs"    class="nav-link">Couleurs</a>
+    <a href="#typographie" class="nav-link">Typographie</a>
+    <a href="#elements"    class="nav-link">Éléments</a>
+    <a href="#composants"  class="nav-link">Composants</a>
+    <a href="#motion"      class="nav-link">Motion</a>
+    <a href="#prototypes"  class="nav-link">Prototypes</a>
+  </div>
+  <a href="#prototypes" class="nav-cta">Voir les prototypes →</a>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--lime);">Design System — v1.0</div>
+    <h1 class="hero-title">B<span class="deg">°</span>UNCE</h1>
+    <p class="hero-tagline">" Propulseur de talents cachés "</p>
+    <div class="hero-pills">
+      <span class="pill-lime"><span class="dot"></span>Design System actif</span>
+      <span class="pill-outline">6 couleurs · 2 polices · 1 identité</span>
+    </div>
+  </div>
+
+  <svg class="hero-squiggle" viewBox="0 0 500 500" fill="none" aria-hidden="true">
+    <path d="M80 250 C80 130,170 60,250 60 S420 130,420 250 S340 440,250 440 S80 370,80 250" stroke="white" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M120 250 C120 155,190 100,250 100 S380 155,380 250 S310 400,250 400 S120 345,120 250" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="250" cy="60"  r="14" fill="white"/>
+    <circle cx="420" cy="250" r="10" fill="white"/>
+    <circle cx="250" cy="440" r="12" fill="white"/>
+    <circle cx="80"  cy="250" r="8"  fill="white"/>
+  </svg>
+</section>
+
+<!-- ── Mission ── -->
+<section id="mission">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--purple);">La mission</div>
+    <h2 class="section-title">Révéler<br/>les invisibles</h2>
+    <p style="font-size:18px;line-height:1.85;color:rgba(12,18,68,.7);max-width:680px;margin-top:8px;">
+      Bounce est une plateforme française dont la mission est de <strong>dévoiler et lancer les talents cachés.</strong>
+      L'identité est énergique, jeune et confiante — une marque qui parle à ceux
+      qui n'ont pas encore montré ce dont ils sont capables.
+    </p>
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0C1244" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Voix confiante, ton chaleureux</h3>
+        <p>Motivant sans être mièvre. Vous dans les grandes campagnes, tu dans l'UI produit et les contextes communautaires. Sentence case partout sauf les moments display ALL CAPS.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0C1244" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3>Français par défaut</h3>
+        <p>Tout — titres, CTAs, microcopy — est en français. Ponctuation française&nbsp;: espaces insécables avant&nbsp;? ! : ; et guillemets « ». Tagline toujours en italique, orange sur marine.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Couleurs ── -->
+<section id="couleurs">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--lime);">La palette</div>
+    <h2 class="section-title" style="color:var(--white);">Couleurs</h2>
+    <div class="colors-grid">
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#0C1244;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-navy</div>
+          <div class="color-hex">#0C1244</div>
+          <div class="color-name">Marine</div>
+          <div class="color-meaning">Savoir, autorité, élégance. Fond sombre par défaut et couleur de texte principale.</div>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#5202FC;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-purple</div>
+          <div class="color-hex">#5202FC</div>
+          <div class="color-name">Violet</div>
+          <div class="color-meaning">Calme, stabilité, confiance, loyauté. Couleur primaire — bouton principal.</div>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#BAD532;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-lime</div>
+          <div class="color-hex">#BAD532</div>
+          <div class="color-name">Citron vert</div>
+          <div class="color-meaning">Stabilité + renaissance. L'étincelle — surlignage, le °, sélection active.</div>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#FF9939;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-orange</div>
+          <div class="color-hex">#FF9939</div>
+          <div class="color-name">Orange</div>
+          <div class="color-meaning">Énergie, vitalité, créativité. Accentuation, taglines, emphasis sur les CTAs.</div>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#FFFCE1;border-bottom:2.5px solid #0C1244;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-cream</div>
+          <div class="color-hex">#FFFCE1</div>
+          <div class="color-name">Crème</div>
+          <div class="color-meaning">Fond clair / papier. Paire principale avec marine : crème sur marine ou marine sur crème.</div>
+        </div>
+      </div>
+
+      <div class="color-card">
+        <div class="color-swatch" style="background:#111111;"></div>
+        <div class="color-info">
+          <div class="color-token">--bounce-black</div>
+          <div class="color-hex">#111111</div>
+          <div class="color-name">Noir</div>
+          <div class="color-meaning">Noir pur — utilisé avec parcimonie. Cadre du téléphone, contrastes forts.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="usage-box">
+      <div class="eyebrow" style="color:var(--lime);">Règles d'usage</div>
+      <div class="usage-grid">
+        <div>
+          <div class="usage-cell-title">Paire principale</div>
+          <div class="usage-cell-body">Marine sur crème · Crème sur marine · Crème sur violet</div>
+        </div>
+        <div>
+          <div class="usage-cell-title">Sections pleine largeur</div>
+          <div class="usage-cell-body">Bandes pleines crème → violet → marine → orange → citron. Pas de transition douce entre les couleurs.</div>
+        </div>
+        <div>
+          <div class="usage-cell-title">À éviter absolument</div>
+          <div class="usage-cell-body">Jamais violet sur marine · Logo couleur sur photo · Dégradés sur l'UI standard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Typographie ── -->
+<section id="typographie">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--lime);">Typographie</div>
+    <h2 class="section-title" style="color:var(--white);">Polices</h2>
+
+    <div class="type-block">
+      <div class="type-label">Display — CY Grotesk Grand</div>
+      <div class="display-sample">B°UNCE<br/>TALENT°</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.3);margin-top:16px;">Propriétaire · Self-hosted · Grasse, arrondie · ALL CAPS pour les moments poster</div>
+    </div>
+
+    <div class="type-block">
+      <div class="type-label">Corps — Montserrat</div>
+      <div class="type-weights">
+        <div class="tw-row">
+          <span class="tw-lbl">400</span>
+          <span style="font-size:19px;font-weight:400;color:rgba(255,255,255,.85);">Le talent n'attend pas d'être trouvé.</span>
+        </div>
+        <div class="tw-row">
+          <span class="tw-lbl">600</span>
+          <span style="font-size:19px;font-weight:600;color:rgba(255,255,255,.85);">Le talent n'attend pas d'être trouvé.</span>
+        </div>
+        <div class="tw-row">
+          <span class="tw-lbl">700 italic</span>
+          <span style="font-size:19px;font-weight:700;font-style:italic;color:var(--orange);">" Propulseur de talents cachés "</span>
+        </div>
+        <div class="tw-row">
+          <span class="tw-lbl">900</span>
+          <span style="font-size:26px;font-weight:900;color:var(--white);">Rejoins le mouvement.</span>
+        </div>
+        <div class="tw-row">
+          <span class="tw-lbl">900 italic</span>
+          <span style="font-size:26px;font-weight:900;font-style:italic;color:var(--lime);">La nuit.</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.3);margin-top:16px;">Google Fonts · Weights 400 500 600 700 800 900 · Regular + Italic</div>
+    </div>
+
+    <div class="type-rules">
+      <div class="type-rule-card">
+        <div class="type-label">Casse</div>
+        <p>Titres de section : sentence case, souvent italic. Mega-titres / logo : ALL CAPS. Corps et UI : sentence case. Boutons : sentence case.</p>
+      </div>
+      <div class="type-rule-card">
+        <div class="type-label">Italic</div>
+        <p>Les titres penchent italic — le guide skew l'affichage visually. Taglines toujours en italic, en bleu ou orange accentué.</p>
+      </div>
+      <div class="type-rule-card">
+        <div class="type-label">Ponctuation FR</div>
+        <p>Espace insécable avant&nbsp;? ! : ; et à l'intérieur des «&nbsp;».</p>
+        <p style="margin-top:8px;">Guillemets stylistiques&nbsp;: <span style="color:var(--orange);">" Propulseur de talents cachés "</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Éléments graphiques ── -->
+<section id="elements">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--purple);">Éléments graphiques</div>
+    <h2 class="section-title">L'ADN visuel</h2>
+
+    <div class="elements-grid">
+
+      <div class="el-card">
+        <div class="el-label">Ombres sticker</div>
+        <div class="shadow-demo">
+          <div class="shadow-item" style="background:var(--purple);color:var(--white);box-shadow:4px 4px 0 var(--navy);">4px — standard</div>
+          <div class="shadow-item" style="background:var(--lime);color:var(--navy);box-shadow:8px 8px 0 var(--navy);">8px — large</div>
+          <div class="shadow-item" style="background:var(--orange);color:var(--navy);box-shadow:3px 3px 0 var(--purple);">3px — violet</div>
+        </div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:16px;line-height:1.6;">Offset solide, aucun blur. Jamais de longues ombres diffuses — ça fait corporate.</p>
+      </div>
+
+      <div class="el-card">
+        <div class="el-label">Rayons de bordure</div>
+        <div class="radius-demo" style="margin-bottom:10px;">
+          <div class="radius-item" style="border-radius:8px;"><span>8px</span><span style="font-size:9px;opacity:.6;">sm</span></div>
+          <div class="radius-item" style="border-radius:16px;"><span>16px</span><span style="font-size:9px;opacity:.6;">md</span></div>
+          <div class="radius-item" style="border-radius:24px;"><span>24px</span><span style="font-size:9px;opacity:.6;">lg</span></div>
+          <div class="radius-item" style="border-radius:32px;"><span>32px</span><span style="font-size:9px;opacity:.6;">xl</span></div>
+        </div>
+        <div style="height:42px;background:var(--orange);border-radius:100px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--navy);">pill — 100px</div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:12px;line-height:1.6;">Très généreux — miroir des lettres balloon du logo. Cards&nbsp;: 24–32px. Boutons&nbsp;: pill.</p>
+      </div>
+
+      <div class="el-card">
+        <div class="el-label">Squiggles</div>
+        <div class="squiggle-preview">
+          <svg width="120" height="120" viewBox="0 0 120 120" style="animation:squiggle-wobble 3s ease-in-out infinite;" aria-hidden="true">
+            <path d="M20 60 C20 20,60 10,80 40 S100 80,60 90 S10 80,20 60" stroke="#FFFCE1" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M40 50 C30 30,70 20,85 45 S95 75,65 85 S25 75,40 50" stroke="#BAD532" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="80" cy="40" r="5" fill="#FF9939"/>
+            <circle cx="60" cy="90" r="4" fill="#BAD532"/>
+          </svg>
+        </div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);line-height:1.6;">Motif dessiné à la main — boucles en citron, orange, marine, violet sur dégradé chaud. Hero pleine largeur seulement. Rotation légère au survol ±5deg.</p>
+      </div>
+
+    </div>
+
+    <div class="elements-bottom">
+      <div class="el-card">
+        <div class="el-label">Bordures</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="height:42px;border:2px solid var(--navy);border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--navy);">2px — standard</div>
+          <div style="height:42px;border:4px solid var(--navy);border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--navy);">4px — emphase</div>
+          <div style="height:42px;border:3px solid var(--purple);border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--purple);">3px violet</div>
+        </div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:12px;line-height:1.6;">Pas de lignes 1px grises. À la place : l'espacement ou un changement de couleur de section.</p>
+      </div>
+
+      <div class="el-card">
+        <div class="el-label">États interactifs</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="height:42px;background:var(--purple);border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--white);transform:translateY(-2px);box-shadow:4px 6px 0 var(--navy);border:2.5px solid var(--navy);">↑ Hover — élever + ombre</div>
+          <div style="height:42px;background:var(--purple);border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--white);transform:scale(.98) translate(2px,2px);box-shadow:2px 2px 0 var(--navy);border:2.5px solid var(--navy);">↓ Press — atterrir</div>
+          <div style="height:42px;border:3px solid var(--lime);outline:3px solid var(--lime);outline-offset:2px;border-radius:var(--r-pill);display:flex;align-items:center;padding:0 20px;font-size:13px;font-weight:700;color:var(--navy);">Focus — contour citron vert 3px</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Composants ── -->
+<section id="composants">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--navy);">Composants</div>
+    <h2 class="section-title" style="color:var(--navy);">UI Kit</h2>
+
+    <div class="comp-grid">
+
+      <div class="comp-card">
+        <div class="comp-label">Boutons</div>
+        <div class="btns-row" style="margin-bottom:12px;">
+          <button class="btn btn-purple">Découvrir</button>
+          <button class="btn btn-outline">+ Suivre</button>
+          <button class="btn btn-lime-b">✓ Voté !</button>
+        </div>
+        <button class="btn btn-purple btn-full">▲ Voter pour cette œuvre</button>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:14px;line-height:1.6;">Sentence case. Pill. Ombre sticker. Hover : +2px. Press : translate(2px,2px) ombre collapse.</p>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-label">Chips / Filtres</div>
+        <div class="chips-row">
+          <span class="chip chip-on">Tous</span>
+          <span class="chip chip-off">Illustration</span>
+          <span class="chip chip-off">Photo</span>
+          <span class="chip chip-off">Musique</span>
+          <span class="chip chip-off">3D</span>
+        </div>
+        <div class="chips-row" style="margin-top:12px;">
+          <span class="chip chip-don-on">Actif foncé</span>
+          <span class="chip chip-don">Inactif foncé</span>
+        </div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:14px;line-height:1.6;">Variante claire (border navy) et foncée (fond translucide). Toujours pill. Scroll horizontal sur mobile.</p>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-label">Carte œuvre</div>
+        <div class="card-demo">
+          <div class="artwork-demo"></div>
+          <div class="card-demo-body">
+            <span class="card-tag">Photo</span>
+            <div class="card-title">Néon sur Seine</div>
+            <div class="card-meta">Amina K. · ▲ 1 842</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:rgba(12,18,68,.5);margin-top:14px;line-height:1.6;">Radius 24–32px · Ombre 8px · Rotation ±2deg en marketing. Hover&nbsp;: redressement + élévation.</p>
+      </div>
+
+      <div class="comp-card comp-card-dark">
+        <div class="comp-label comp-label-inv">Compte à rebours + Badges</div>
+        <div class="countdown" style="margin-bottom:20px;">
+          <div class="cd-pill"><span class="cd-num">03</span><span class="cd-unit">j</span></div>
+          <div class="cd-pill"><span class="cd-num">14</span><span class="cd-unit">h</span></div>
+          <div class="cd-pill"><span class="cd-num">22</span><span class="cd-unit">m</span></div>
+          <div class="cd-pill"><span class="cd-num">08</span><span class="cd-unit">s</span></div>
+        </div>
+        <div class="badge-row">
+          <span class="badge" style="background:var(--lime);color:var(--navy);">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--navy);display:inline-block;"></span>
+            En cours
+          </span>
+          <span class="badge" style="background:transparent;color:rgba(255,255,255,.7);border:1.5px solid rgba(255,255,255,.3);">Sponsorisé</span>
+          <span class="badge" style="background:var(--purple);color:var(--white);">Photo</span>
+          <span class="badge" style="background:var(--orange);color:var(--navy);">#1</span>
+        </div>
+        <p style="font-size:12px;color:rgba(255,255,255,.35);margin-top:14px;line-height:1.6;">Variante dark (navy pill) et light (translucide blanc) selon le fond de section.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Motion ── -->
+<section id="motion">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--navy);">Interactions</div>
+    <h2 class="section-title" style="color:var(--navy);">Motion</h2>
+
+    <div class="motion-grid">
+      <div class="motion-card">
+        <div class="motion-ball"></div>
+        <h3>Bounce — l'éasing signature</h3>
+        <p>Survolez la balle pour sentir le ressort. C'est littéralement dans le nom.</p>
+        <code>cubic-bezier(.34, 1.56, .64, 1)</code>
+      </div>
+      <div class="motion-card">
+        <div class="motion-sq"></div>
+        <h3>Press — atterrir</h3>
+        <p>Au clic, les éléments atterrissent : l'ombre collapse et la pièce se pose sur la surface.</p>
+        <code>translate(2px, 2px) + shadow↓</code>
+      </div>
+      <div class="motion-card">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--navy);margin:0 auto 20px;border:3px solid var(--navy);box-shadow:var(--shadow-md);animation:float-in .8s var(--ease-bounce) both;"></div>
+        <h3>Entrance — arriver</h3>
+        <p>Les éléments arrivent scale-from-0.9 + spring. Pas de fade seul — les choses <em>arrivent</em>.</p>
+        <code>scale(0.9) → 1 · 420ms</code>
+      </div>
+    </div>
+
+    <div class="timing-box">
+      <div class="eyebrow" style="color:var(--navy);">Durées</div>
+      <div class="timing-grid">
+        <div><div class="timing-val">120ms</div><div class="timing-lbl">Rapide — hover, press</div></div>
+        <div><div class="timing-val">220ms</div><div class="timing-lbl">Par défaut — transitions</div></div>
+        <div><div class="timing-val">420ms</div><div class="timing-lbl">Entrée — apparitions</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Les interdits ── -->
+<section id="interdits">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--orange);">Charte graphique</div>
+    <h2 class="section-title" style="color:var(--white);">Les interdits</h2>
+    <div class="interdits-grid">
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas étirer ni déformer le logo</div></div>
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas modifier les couleurs du logo</div></div>
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas faire pivoter le logo</div></div>
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas recadrer le logo</div></div>
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas ajouter de contour ni d'ombre portée autour du logo</div></div>
+      <div class="interdit-item"><div class="interdit-x">✕</div><div class="interdit-text">Ne pas placer le logo couleur sur une photo — utiliser la variante blanche ou halo</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Prototypes ── -->
+<section id="prototypes">
+  <div class="inner">
+    <div class="eyebrow" style="color:var(--purple);">Écrans interactifs</div>
+    <h2 class="section-title">Prototypes</h2>
+    <p style="font-size:16px;line-height:1.75;color:rgba(12,18,68,.65);max-width:600px;margin-top:8px;">Quatre écrans fonctionnels simulant l'application mobile Bounce — construits en HTML vanilla, fidèles aux tokens du design system.</p>
+
+    <div class="proto-grid">
+
+      <a href="feed.html" class="proto-card">
+        <div class="proto-preview" style="background:radial-gradient(ellipse at 30% 70%,rgba(82,2,252,.55) 0%,transparent 50%),radial-gradient(ellipse at 70% 30%,rgba(186,213,50,.45) 0%,transparent 50%),var(--cream);">
+          <div class="proto-preview-inner">
+            <div class="proto-preview-label" style="color:var(--purple);">Accueil</div>
+            <div class="proto-preview-title" style="color:var(--navy);">Feed</div>
+          </div>
+        </div>
+        <div class="proto-body">
+          <div class="proto-num">Écran 1</div>
+          <div class="proto-title">Feed — Accueil</div>
+          <div class="proto-desc">Grille d'œuvres, tremplin en cours, scroll horizontal des événements. Navigation par chips de filtres.</div>
+          <span class="proto-cta">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a href="tremplin.html" class="proto-card">
+        <div class="proto-preview" style="background:radial-gradient(ellipse at 70% 25%,rgba(255,153,57,.8) 0%,transparent 50%),radial-gradient(ellipse at 25% 75%,rgba(82,2,252,.5) 0%,transparent 50%),var(--navy);">
+          <div class="proto-preview-inner">
+            <div class="proto-preview-label" style="color:var(--lime);">Défi</div>
+            <div class="proto-preview-title" style="color:var(--white);">Tremplin</div>
+          </div>
+        </div>
+        <div class="proto-body">
+          <div class="proto-num">Écran 2</div>
+          <div class="proto-title">Tremplin — Défi</div>
+          <div class="proto-desc">Thème du défi, dotations, classement des œuvres, compte à rebours et CTA vote sticky.</div>
+          <span class="proto-cta">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a href="marque.html" class="proto-card">
+        <div class="proto-preview" style="background:radial-gradient(ellipse at 20% 50%,var(--purple) 0%,transparent 55%),radial-gradient(ellipse at 80% 50%,var(--lime) 0%,transparent 55%),radial-gradient(ellipse at 50% 100%,var(--orange) 0%,transparent 50%),#2a0080;">
+          <div class="proto-preview-inner">
+            <div class="proto-preview-label" style="color:var(--lime);">Partenaire</div>
+            <div class="proto-preview-title" style="color:var(--white);">Marque</div>
+          </div>
+        </div>
+        <div class="proto-body">
+          <div class="proto-num">Écran 3</div>
+          <div class="proto-title">Marque — Profil partenaire</div>
+          <div class="proto-desc">Bio, stats d'impact, tremplins sponsorisés et galerie des artistes gagnants.</div>
+          <span class="proto-cta">Ouvrir →</span>
+        </div>
+      </a>
+
+      <a href="oeuvre.html" class="proto-card">
+        <div class="proto-preview" style="background:radial-gradient(ellipse at 60% 40%,rgba(255,255,255,.85) 0%,transparent 32%),radial-gradient(ellipse at 30% 70%,rgba(82,2,252,.8) 0%,transparent 42%),radial-gradient(ellipse at 70% 65%,rgba(186,213,50,.35) 0%,transparent 40%),#5a7cbb;">
+          <div class="proto-preview-inner">
+            <div class="proto-preview-label" style="color:var(--lime);">Détail</div>
+            <div class="proto-preview-title" style="color:var(--white);">Œuvre</div>
+          </div>
+        </div>
+        <div class="proto-body">
+          <div class="proto-num">Écran 4</div>
+          <div class="proto-title">Œuvre — Détail</div>
+          <div class="proto-desc">Visuel plein écran, profil artiste, citation, stats de vote, actions et modale d'inscription.</div>
+          <span class="proto-cta">Ouvrir →</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="inner">
+    <div class="footer-inner">
+      <div class="footer-logo">b<sup>°</sup>unce</div>
+      <div class="footer-tagline">" Propulseur de talents cachés "</div>
+      <div class="footer-meta">Design System v1.0<br/>Maintenu dans un projet Claude</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('.nav-link');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.getAttribute('id');
+        navLinks.forEach(a => {
+          const active = a.getAttribute('href') === `#${id}`;
+          a.classList.toggle('active', active);
+        });
+      }
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => obs.observe(s));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
